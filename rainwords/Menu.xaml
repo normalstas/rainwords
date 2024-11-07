@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="rainwords.Menu"
+             >
+    <VerticalStackLayout x:Name="favoritmenu" Spacing="50" Margin="20,250">
+        <VerticalStackLayout x:Name="btnlist" >
+            <Button Text="Играть" Clicked="Play_Clicked" x:Name="play" Margin="0,20,0,0"/>
+            <Button Text="Настройки" Clicked="Setting_Clicked" x:Name="setting" Margin="0,20,0,0"/>
+            <Button Text="Выход" Clicked="Exit_Clicked" x:Name="exit" Margin="0,20,0,0"/>
+        </VerticalStackLayout>
+        <VerticalStackLayout x:Name="complex1" IsVisible="False" Spacing="10">
+            <Label Text="Выберите сложность"/>
+            <Button Text="Продолжить" Clicked="buttoncomplex" Margin="0,20,0,0" IsVisible="False" x:Name="contin"/>
+            <Button Text="Легкая" Clicked="buttoncomplex" Margin="0,20,0,0"/>
+            <Button Text="Средняя" Clicked="buttoncomplex" Margin="0,20,0,0"/>
+            <Button Text="Сложная" Clicked="buttoncomplex" Margin="0,20,0,0"/>
+        </VerticalStackLayout>
+    </VerticalStackLayout>
+</ContentPage>

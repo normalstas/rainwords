@@ -1,0 +1,396 @@
+﻿
+namespace rainwords
+{
+
+	public partial class MainPage : ContentPage
+	{
+
+		public MainPage()
+		{
+			InitializeComponent();
+			labels = new List<Label> { cell1, cell2, cell3, cell4, cell5, cell6, cell7, cell8, cell9 };
+			timer_complex();
+			int columns = 11;
+
+
+			int rows = (int)Math.Ceiling(33.0 / columns);
+			char[] letters = "йцукенгшщзхфывапролджэ ячсмитьбю".ToCharArray();
+			for (int i = 0; i < letters.Length; i++)
+			{
+				var button = new Button
+				{
+					Text = letters[i].ToString(),
+					BackgroundColor = Colors.Transparent,
+					TextColor = Colors.Transparent,
+
+
+				};
+
+				var label = new Label
+				{
+					Text = letters[i].ToString(),
+					Style = (Style)Resources["lbletter"]
+				};
+				int row = i / columns;
+				int column = i % columns;
+				if (button.Text == " ")
+				{
+					button.IsEnabled = false;
+					button.IsVisible = false;
+				}
+				button.Clicked += Button_Clicked;
+				Grid.SetRow(button, row);
+				Grid.SetColumn(button, column);
+				Grid.SetColumn(label, column);
+				Grid.SetRow(label, row);
+
+				keyboard.Children.Add(button);
+				keyboard.Children.Add(label);
+			}
+			for (int i = 0; i < labels.Count; i++)
+			{
+				var label = new Label
+				{
+					Text = "_",
+					Style = (Style)Resources["lbforent"]
+				};
+				lbent.Children.Add(label);
+			}
+
+
+			_timer = Application.Current.Dispatcher.CreateTimer();
+			_timer.Interval = TimeSpan.FromSeconds(1);
+			_timer.Tick += Timer_Tick;
+			_timer2 = Application.Current.Dispatcher.CreateTimer();
+			_timer2.Interval = TimeSpan.FromSeconds(1);
+			_timer2.Tick += Timer2_Tick;
+			_timer3 = Application.Current.Dispatcher.CreateTimer();
+			_timer3.Interval = TimeSpan.FromMicroseconds(1);
+
+			_timer3.Tick += Timer3_Tick;
+			_timer.Start();
+			_timer2.Start();
+			_timer3.Start();
+
+		}
+
+		int cellindex = 0;
+		Random random = new Random();
+		int point = 0;
+
+		List<Label> labels = new List<Label>();
+		private void Button_Clicked(object sender, EventArgs e)
+		{
+			var button = sender as Button;
+			if (button == null) return;
+			if (flagenabled)
+			{
+
+
+
+				var letter = button.Text;
+
+
+
+				if (cellindex < labels.Count)
+				{
+					labels[cellindex].Text = letter;
+					cellindex++;
+
+				}
+			}
+
+
+
+
+		}
+
+		TimeSpan _time;
+		IDispatcherTimer _timer;
+		TimeSpan _time2;
+		IDispatcherTimer _timer2;
+		TimeSpan _time3;
+		IDispatcherTimer _timer3;
+
+
+		int complex = 0;
+
+		string wordwin;
+
+
+		private void Timer_Tick(object sender, EventArgs e)
+		{
+
+			_time = _time.Add(new TimeSpan(0, 0, -1));
+
+			string timeString = string.Format("{0}:{1:D2}", (int)_time.TotalMinutes, _time.Seconds);
+			tim.Text = timeString;
+
+
+			if (_time.TotalSeconds == 0)
+			{
+				DisplayAlert("Время вышло!", "Ваши очки: " + point, "ok");
+
+			}
+		}
+
+
+		private void Timer3_Tick(object sender, EventArgs e)
+		{
+
+			foreach (var child in wordsfield.ToList())
+			{
+				if (child.ToString() == wordwin)
+				{
+					foreach (var x in field.Children.ToList())
+					{
+						if (x is Label label1 && label1.Text == child.ToString())
+						{
+							field.Children.Remove(x);
+							wordsfield.Remove(child);
+							point += 20;
+							for (int i = 0; i < labels.Count; i++)
+							{
+								labels[i].Text = "";
+
+								cellindex = 0;
+
+							}
+						}
+					}
+
+					break;
+				}
+				switch (complextime)
+				{
+					case 0:
+						wordwin = (cell1.Text + cell2.Text + cell3.Text + cell4.Text + cell5.Text).ToString();
+
+						break;
+					case 1:
+						wordwin = (cell1.Text + cell2.Text + cell3.Text + cell4.Text + cell5.Text + cell6.Text + cell7.Text).ToString();
+
+						break;
+					case 2:
+						wordwin = (cell1.Text + cell2.Text + cell3.Text + cell4.Text + cell5.Text + cell6.Text + cell7.Text
+							+ cell8.Text + cell9.Text).ToString();
+						break;
+					default:
+						break;
+				}
+			}
+
+			poin.Text = point.ToString();
+
+			//double labelY = label.TranslationY;
+			//double labelHeight = label.Height;
+			foreach (var prov in field.Children.ToList())
+			{
+				if (prov is Label label1 && label1.TranslationY >= 370)
+				{
+					field.Children.Remove(prov);
+					if (point >= 20)
+					{
+						point -= 20;
+					}
+
+
+				}
+			}
+
+		}
+		List<Label> labels3 = new List<Label>();
+		List<string> words = new List<string>();
+		bool flagenabled = true;
+
+
+
+		int complextime = Data.compl;
+		double randomX;
+		List<string> wordsfield = new List<string>();
+		private void Timer2_Tick(object sender, EventArgs e)
+		{
+			var displayInfo = DeviceDisplay.MainDisplayInfo;
+			var screenWidth = displayInfo.Width / displayInfo.Density;
+
+			_time2 = _time2.Add(new TimeSpan(0, 0, -1));
+
+			if (_time2.TotalSeconds == 0)
+			{
+
+				int randomword = random.Next(0, 70);
+				randomX = random.Next(Convert.ToInt32(-screenWidth) + 250, Convert.ToInt32(screenWidth) - 250);
+				var label = new Label
+				{
+					Text = words[randomword],
+					TranslationY = -100,
+					BackgroundColor = Colors.Transparent,
+					WidthRequest = 100,
+					TranslationX = randomX,
+				};
+
+
+
+
+				field.Children.Add(label);
+
+				wordsfield.Add(label.Text);
+				_time2 = new TimeSpan(00, 00, complex);
+				//Animation(label);
+
+
+				label.TranslateTo(randomX, 370, 10000, Easing.Linear);
+
+			}
+
+
+		}
+
+
+		//void Animation(Label label)
+		//{
+		//	if (!flagenabled)
+		//	{
+		//		label.TranslateTo(randomX, ohayo, 10000, Easing.Linear);
+		//	}
+		//	else
+		//	{
+		//		label.TranslateTo(randomX, 370, 10000, Easing.Linear);
+
+		//	}
+		//}
+
+
+		void timer_complex()
+		{
+			switch (complextime)
+			{
+				case 0:
+					_time = new TimeSpan(00, 5, 00);
+					_time2 = new TimeSpan(00, 00, 05);
+					complex = 5;
+
+					labels.Remove(cell9); labels.Remove(cell8); labels.Remove(cell7); labels.Remove(cell6);
+					cell9.IsVisible = false; cell8.IsVisible = false; cell7.IsVisible = false; cell6.IsVisible = false;
+					words = new List<string>
+				  { "много","палец","нитка","башня","бимок","мышка","бодро","акулы","алмаз","ангел",
+					"атака","ведро","вафля","глядь","герой","двери","драка","ежели","ехать","нотка",
+					"закат","затея","изгиб","имена","копья","ковры","листы","бровь","может","питон",
+					"точка","ровно","слеза","сборы","талия","тепло","суета","утеха","фобия","фирма",
+					"химия","цапля","цифра","червь","ткань","шляпа","салют","ябеда","кукла","кость",
+					"вилка","тачка","пачка","чашка","кошка","файлы","холод","тепло","осень","весна",
+					"вечно","палец","пятка","шишка","ветка","мишка","тесто","кисло","огонь","пятно",};
+					break;
+				case 1:
+					_time = new TimeSpan(00, 3, 00);
+					complex = 4;
+					_time2 = new TimeSpan(00, 00, 04);
+					labels.Remove(cell9); labels.Remove(cell8);
+					cell9.IsVisible = false; cell8.IsVisible = false;
+					words = new List<string>
+				  { "кипяток","телефон","наушник","стаканы","игрушка","заметки","самокат","охотник","покупка","капуста",
+					"морковь","картина","напиток","волосок","голосок","блокнот","галстук","ботаник","аксиома","алгебра",
+					"единица","дневник","диктант","деление","задание","корабль","яблочко","лесенка","занятия","мускулы",
+					"равнина","потолок","дверной","полинка","родинка","голубое","линейка","букварь","загадка","история",
+					"квадрат","отметка","площадь","предлог","предмет","процесс","рассказ","резинка","рисунок","рулетка",
+					"студент","теорема","тетрадь","учебник","ушастый","учитель","цилиндр","циркуль","частное","экзамен",
+					"планета","спутник","ледоход","носорог","паводок","сумерки","темнота","красный","конфеты","человек",};
+					break;
+				case 2:
+					_time = new TimeSpan(00, 2, 00);
+					complex = 3;
+					_time2 = new TimeSpan(00, 00, 3);
+					words = new List<string>
+				  { "бриллиант","диафрагма","виновница","визитница","биография","бизнесмен","биосинтез","гинеколог","викторина","география",
+					"химчистка","филология","философия","циферблат","симметрия","симуляция","рисование","киносеанс","геометрия","параллель",
+					"лихорадка","лицемерие","мизантроп","милостыня","миллионер","космонавт","диспетчер","дистанция","живописец","килограмм",
+					"миссионер","миниатюра","бутерброд","баскетбол","курортный","компьютер","публичное","кардиолог","претензии","именинник",
+					"восемьсот","должность","знакомить","пиратский","подшипник","безглазый","непонятно","осуждение","последнее","мальчишка",
+					"прочность","бесплатно","фотосхема","двадцатка","затухание","надбровый","вприсядку","выставить","пироженое","драматизм",
+					"брачность","безгривый","проведать","подкрылье","выморозка","оцепление","сметанник","поисковик","крепление","спортсмен",};
+					break;
+				default:
+					break;
+			}
+		}
+
+		private void Button_Clicked_1(object sender, EventArgs e)
+		{
+			if (cellindex > 0)
+			{
+				cellindex--;
+				labels[cellindex].Text = "";
+			}
+		}
+		private void Button_Clicked_2(object sender, EventArgs e)
+		{
+			cellindex = 0;
+			for (int i = 0; i < labels.Count; i++)
+			{
+				labels[i].Text = "";
+
+			}
+
+		}
+		
+		private void pause_Clicked(object sender, EventArgs e)
+		{
+			double ohayo;
+			_timer2.Stop();
+			_timer.Stop();
+			_timer3.Stop();
+			
+			flagenabled = false;
+			//keyletter.IsVisible = false;
+			clearone.IsEnabled = false;
+			clear.IsEnabled = false;
+			absmenu.IsVisible = true;
+			pause.IsEnabled = false;
+			foreach (var a in field.Children.ToList())
+			{
+				if (a is Label label1)
+				{
+					ohayo = label1.TranslationY;
+					
+					label1.TranslateTo(label1.TranslationX, ohayo, 10000, Easing.Linear);
+				}
+
+
+			}
+			
+
+
+		}
+
+		private void start_Clicked(object sender, EventArgs e)
+		{
+
+			flagenabled = true;
+			foreach (var a in field.Children.ToList())
+			{
+
+				if (a is Label label1)
+				{
+					label1.TranslateTo(label1.TranslationX, 370, 10000, Easing.Linear);
+				}
+
+				
+			}
+
+			_timer2.Start();
+			_timer.Start();
+			_timer3.Start();
+			
+			pause.IsEnabled = true;
+			//keyletter.IsVisible = true;
+			absmenu.IsVisible = false;
+			clearone.IsEnabled = true;
+			clear.IsEnabled = true;
+		}
+		private async void exmenu(object sender, EventArgs e)
+		{
+			await Navigation.PopModalAsync();
+		}
+	}
+
+}
