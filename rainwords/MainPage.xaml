@@ -5,7 +5,6 @@
     <ContentPage.Resources>
         <Style TargetType="Label" x:Key="lbforent">
             <Setter Property="BackgroundColor" Value="Transparent"/>
-            <Setter Property="TextColor" Value="Blue"/>
             <Setter Property="FontSize" Value="40"/>
             <Setter Property="HorizontalTextAlignment" Value="Center"/>
             <Setter Property="VerticalTextAlignment" Value="End"/>
@@ -15,7 +14,6 @@
 
         <Style TargetType="Label" x:Key="lbword">
             <Setter Property="BackgroundColor" Value="Transparent"/>
-            <Setter Property="TextColor" Value="Red"/>
             <Setter Property="FontSize" Value="27"/>
             <Setter Property="HorizontalTextAlignment" Value="Center"/>
             <Setter Property="VerticalTextAlignment" Value="End"/>
@@ -28,33 +26,59 @@
             <Setter Property ="VerticalTextAlignment" Value="Center"/>
             <Setter Property="FontSize" Value="26"/>
         </Style>
+
+        <Style TargetType="Button" x:Key="whitethemebutton">
+            <Setter Property="BackgroundColor" Value="Gray"/>
+            <Setter Property="TextColor" Value="White"/>
+            <Setter Property="BorderWidth" Value="2"/>
+            <Setter Property="BorderColor" Value="Black"/>
+        </Style>
+        <Style TargetType="Button" x:Key="pinkthemebutton">
+            <Setter Property="BackgroundColor" Value="White"/>
+            <Setter Property="TextColor" Value="Pink"/>
+            <Setter Property="BorderWidth" Value="2"/>
+            <Setter Property="BorderColor" Value="Gray"/>
+
+        </Style>
+        <Style TargetType="Button" x:Key="blackthemebutton">
+            <Setter Property="BackgroundColor" Value="White"/>
+            <Setter Property="TextColor" Value="Black"/>
+            <Setter Property="BorderWidth" Value="2"/>
+            <Setter Property="BorderColor" Value="White"/>
+        </Style>
     </ContentPage.Resources>
     <VerticalStackLayout x:Name="main">
-        <StackLayout Orientation="Horizontal" BackgroundColor="Aqua">
+        <StackLayout Orientation="Horizontal" x:Name="coutscore">
             <Button x:Name="pause" Text="п" Clicked="pause_Clicked" HorizontalOptions="Start" VerticalOptions="Start" IsVisible="True"/>
 
-            <Label Text="" x:Name="tim" FontSize="30" TextColor="Black" HorizontalOptions="CenterAndExpand"  VerticalOptions="Start"/>
-            <Label Text="" x:Name="poin" FontSize="30" TextColor="Black" HorizontalOptions="End"  VerticalOptions="Start"/>
+            <Label Text="" x:Name="tim" FontSize="30" BackgroundColor="Transparent"  HorizontalOptions="CenterAndExpand"  VerticalOptions="Start"/>
+            <Label Text="" x:Name="poin" FontSize="30" BackgroundColor="Transparent" HorizontalOptions="End"  VerticalOptions="Start"/>
 
         </StackLayout>
-        <Grid x:Name="field" BackgroundColor="Aqua" HeightRequest="400">
+        <Frame 
+    BorderColor="Red" 
+    BackgroundColor="Transparent" 
+    Padding="10">
 
-            <AbsoluteLayout HeightRequest="200" WidthRequest="200" Margin="0,250,0,0" BackgroundColor="Transparent" IsVisible="False" x:Name="absmenu">
+            <Grid x:Name="field" HeightRequest="400">
+
                 <Frame BackgroundColor="#80000000" 
-                CornerRadius="20" 
-                 HasShadow="True" 
-                 Padding="0"
-                 HeightRequest="200" 
-                 WidthRequest="200">
-                    <StackLayout Spacing="20" HeightRequest="200"  WidthRequest="200" Padding="10">
-                        <Label Text="Пауза" FontSize="30" HorizontalOptions="CenterAndExpand"/>
+            CornerRadius="20" 
+            HasShadow="True" 
+             Padding="0"
+              HeightRequest="200" 
+              WidthRequest="200"
+             IsVisible="False" x:Name="absmenu"
+                       Margin="0,200,0,0">
+                    <StackLayout Spacing="20" HeightRequest="200" WidthRequest="200" Padding="10">
+                        <Label Text="Пауза" x:Name="paus" FontSize="30" HorizontalOptions="CenterAndExpand"/>
                         <Button x:Name="continuebtn" Clicked="start_Clicked" Text="Продолжить" HorizontalOptions="CenterAndExpand"/>
                         <Button x:Name="exit" Clicked="exmenu" Text="выйти меню" HorizontalOptions="CenterAndExpand"/>
                     </StackLayout>
                 </Frame>
-            </AbsoluteLayout>
 
-        </Grid>
+            </Grid>
+        </Frame>
         <HorizontalStackLayout x:Name="word" Spacing="10" HorizontalOptions="CenterAndExpand">
             <Label x:Name="cell1" Text="" Style="{StaticResource Key=lbword}"/>
             <Label x:Name="cell2" Text="" Style="{StaticResource Key=lbword}"/>
@@ -74,7 +98,7 @@
 
             <Grid x:Name="keyboard" BackgroundColor="gray">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="70"/>
+                    <RowDefinition Height="70" />
                     <RowDefinition Height="70"/>
                     <RowDefinition Height="70"/>
 

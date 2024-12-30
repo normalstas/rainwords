@@ -3,18 +3,80 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="rainwords.Menu"
              >
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style TargetType="Button" x:Key="whitethemebutton">
+                <Setter Property="BackgroundColor" Value="Gray"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="BorderWidth" Value="2"/>
+                <Setter Property="BorderColor" Value="Black"/>
+
+            </Style>
+            <Style TargetType="Label" x:Key="whitethemelabel">
+                <Setter Property="TextColor" Value="Black"/>
+            </Style>
+           
+
+
+            <Style TargetType="Button" x:Key="pinkthemebutton">
+                <Setter Property="BackgroundColor" Value="White"/>
+                <Setter Property="TextColor" Value="Pink"/>
+                <Setter Property="BorderWidth" Value="2"/>
+                <Setter Property="BorderColor" Value="Gray"/>
+
+            </Style>
+            <Style TargetType="Label" x:Key="pinkthemelabel">
+                <Setter Property="TextColor" Value="White"/>
+            </Style>
+
+
+            <Style TargetType="Button" x:Key="blackthemebutton">
+                <Setter Property="BackgroundColor" Value="White"/>
+                <Setter Property="TextColor" Value="Black"/>
+                <Setter Property="BorderWidth" Value="2"/>
+                <Setter Property="BorderColor" Value="Gray"/>
+
+            </Style>
+            <Style TargetType="Label" x:Key="blackthemelabel">
+                <Setter Property="TextColor" Value="White"/>
+            </Style>
+
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <VerticalStackLayout x:Name="allpagefortheme">
+        
     <VerticalStackLayout x:Name="favoritmenu" Spacing="50" Margin="20,250">
-        <VerticalStackLayout x:Name="btnlist" >
-            <Button Text="Играть" Clicked="Play_Clicked" x:Name="play" Margin="0,20,0,0"/>
-            <Button Text="Настройки" Clicked="Setting_Clicked" x:Name="setting" Margin="0,20,0,0"/>
-            <Button Text="Выход" Clicked="Exit_Clicked" x:Name="exit" Margin="0,20,0,0"/>
-        </VerticalStackLayout>
+        <Grid x:Name="btnlist" >
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            
+            <Button Text="Играть" Clicked="Play_Clicked" x:Name="play" Grid.Row="0" Margin="0,20,0,0"/>
+            <Button Text="Настройки" Clicked="Setting_Clicked" x:Name="setting" Grid.Row="1" Margin="0,20,0,0"/>
+            <Button Text="Выход" Clicked="Exit_Clicked" x:Name="exit" Grid.Row="2" Margin="0,20,0,0"/>
+            <VerticalStackLayout x:Name="confirmation" IsVisible="False" Grid.RowSpan="3" BackgroundColor="Black">
+                <StackLayout  VerticalOptions="FillAndExpand">
+                    <Label Text="Точно выйти? Ваша игра не будет сохранена" HorizontalTextAlignment="Center" 
+                       FontSize="15" HorizontalOptions="CenterAndExpand" x:Name="confirmationexit"/>
+                </StackLayout>                
+                <HorizontalStackLayout VerticalOptions="End">
+                    <Button x:Name="exitconf" Clicked="exitconf_Clicked" Text="Да" HorizontalOptions="FillAndExpand"/>
+                    <Button x:Name="non" Clicked="cansel" Text="Нет" HorizontalOptions="FillAndExpand"/>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+        </Grid>
+
         <VerticalStackLayout x:Name="complex1" IsVisible="False" Spacing="10">
-            <Label Text="Выберите сложность"/>
+            <Button Text="Назад" Clicked="back_menu" HorizontalOptions="Start" x:Name="back"/>
+            <Label Text="Выберите сложность" x:Name="selectcomplex"/>
             <Button Text="Продолжить" Clicked="buttoncomplex" Margin="0,20,0,0" IsVisible="False" x:Name="contin"/>
-            <Button Text="Легкая" Clicked="buttoncomplex" Margin="0,20,0,0"/>
-            <Button Text="Средняя" Clicked="buttoncomplex" Margin="0,20,0,0"/>
-            <Button Text="Сложная" Clicked="buttoncomplex" Margin="0,20,0,0"/>
+            <Button Text="Легкая" Clicked="buttoncomplex" Margin="0,20,0,0" x:Name="easy"/>
+            <Button Text="Средняя" Clicked="buttoncomplex" Margin="0,20,0,0" x:Name="average"/>
+            <Button Text="Сложная" Clicked="buttoncomplex" Margin="0,20,0,0" x:Name="hard"/>
         </VerticalStackLayout>
     </VerticalStackLayout>
+    </VerticalStackLayout>
+
 </ContentPage>
