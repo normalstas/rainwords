@@ -2,6 +2,7 @@
 
 
 using Microsoft.Maui.Controls;
+using System.Diagnostics;
 using System.Numerics;
 
 
@@ -22,7 +23,8 @@ namespace rainwords
 			char[] letters = "йцукенгшщзхфывапролджэ ячсмитьбю".ToCharArray();
 			if (Preferences.Default.Get("languagepickcheck", "") == "English")
 			{
-				letters = " qwertyuiop asdfghjkl   zxcvbnm".ToCharArray();
+				columns = 10;
+				letters = "qwertyuiopasdfghjkl zxcvbnm".ToCharArray();
 				Grid.SetRow(clearone, 2);
 				Grid.SetColumnSpan(clearone, 2);
 				Grid.SetRow(clear, 2);
@@ -38,15 +40,13 @@ namespace rainwords
 
 			for (int i = 0; i < letters.Length; i++)
 			{
-
 				var button = new Button
 				{
 					Text = letters[i].ToString(),
-
 					TextColor = Colors.Transparent,
 					BorderWidth = 2,
-					//HeightRequest = 26,
-
+					FontSize = 18,
+					CornerRadius = 5,
 				};
 
 				var label = new Label
@@ -60,14 +60,17 @@ namespace rainwords
 					case "swhitetheme.png":
 						button.Style = (Style)Resources["whitethemebutton"];
 						label.TextColor = Colors.White;
+						paus.TextColor = Colors.Black;
 						break;
 					case "spinktheme.png":
 						button.Style = (Style)Resources["pinkthemebutton"];
 						label.TextColor = Colors.Pink;
+						paus.TextColor = Colors.Pink;
 						break;
 					case "sblacktheme.png":
 						button.Style = (Style)Resources["blackthemebutton"];
 						label.TextColor = Colors.Black;
+						paus.TextColor = Colors.White;
 						break;
 					default:
 						break;
@@ -76,36 +79,39 @@ namespace rainwords
 				int column = i % columns;
 				if (button.Text == " ")
 				{
-
 					label.IsVisible = false;
 					label.IsVisible = false;
 					button.IsEnabled = false;
 					button.IsVisible = false;
-
 				}
 
-				Grid.SetRow(button, row);
-				Grid.SetColumn(button, column);
-				Grid.SetRow(label, row);
-				Grid.SetColumn(label, column);
 				if (Preferences.Default.Get("languagepickcheck", "") == "English")
 				{
-
-					if (row == 2 && column == 0 || row == 2 && column == 10)
+					button.WidthRequest = 30;
+					button.HeightRequest = 50;
+					if (row == 0)
 					{
-
-						label.IsVisible = false;
-						label.IsVisible = false;
-						button.IsEnabled = false;
-						button.IsVisible = false;
-						Grid.SetColumnSpan(clearone, 2);
-						Grid.SetColumn(clear, 9);
-						//Grid.SetColumnSpan(clear, 2);
+						button.Margin = new Thickness(50000, 0);
+					}
+					if (row == 1)
+					{
+						button.Margin = new Thickness(20,0);
+						column += 1;
+					}
+					if (row == 2)
+					{
+						
+						if (column >= 0 && column <= 6) 
+						{ 
+							column += 2;
+						}
 					}
 				}
 				button.Clicked += Button_Clicked;
-
-
+					Grid.SetRow(button, row);
+					Grid.SetColumn(button, column);
+					Grid.SetRow(label, row);
+					Grid.SetColumn(label, column);
 
 				keyboard.Children.Add(button);
 				keyboard.Children.Add(label);
@@ -224,9 +230,6 @@ namespace rainwords
 
 			}
 
-
-
-
 		}
 
 		TimeSpan _time;
@@ -235,10 +238,7 @@ namespace rainwords
 		IDispatcherTimer _timer2;
 		TimeSpan _time3;
 		IDispatcherTimer _timer3;
-
-
 		int complex = 0;
-
 		string wordwin;
 
 
@@ -254,12 +254,11 @@ namespace rainwords
 			if (_time.TotalSeconds == 0)
 			{
 				DisplayAlert("Время вышло!", "Ваши очки: " + point, "ok");
-
 			}
 		}
 
 
-		private void Timer3_Tick(object sender, EventArgs e)
+		private async void Timer3_Tick(object sender, EventArgs e)
 		{
 
 			foreach (var child in wordsfield.ToList())
@@ -270,13 +269,12 @@ namespace rainwords
 					{
 						if (x is Label label1 && label1.Text == child.ToString())
 						{
-							field.Children.Remove(x);
+							PlayCorrectWordEffect(label1, true);
 							wordsfield.Remove(child);
-							point += 20;
+							point += Data.pointcsm;
 							for (int i = 0; i < labels.Count; i++)
 							{
 								labels[i].Text = "";
-
 								cellindex = 0;
 
 							}
@@ -303,18 +301,16 @@ namespace rainwords
 						break;
 				}
 			}
-
 			poin.Text = point.ToString();
-
 
 			foreach (var prov in field.Children.ToList())
 			{
 				if (prov is Label label1 && label1.TranslationY >= 370)
 				{
-					field.Children.Remove(prov);
-					if (point >= 20)
+					PlayCorrectWordEffect(label1, false);
+					if (point >= Data.pointcsm)
 					{
-						point -= 20;
+						point -= Data.pointcsm;
 					}
 
 
@@ -322,12 +318,34 @@ namespace rainwords
 			}
 
 		}
-		List<Label> labels3 = new List<Label>();
+		private async void PlayCorrectWordEffect(Label label, bool checkplay)
+		{
+			if (checkplay)
+			{
+				 
+				if (Preferences.Default.Get("swanim", true) == true)
+				{
+					label.TextColor = Colors.Lime;
+					Microsoft.Maui.Controls.ViewExtensions.CancelAnimations(label);
+					await label.ScaleTo(1.3, 200, Easing.Linear);
+					await Task.WhenAll(label.FadeTo(0, 300), label.TranslateTo(label.TranslationX, label.TranslationY - 50, 300));
+				}
+				field.Children.Remove(label);
+			}
+			else
+			{
+				if (Preferences.Default.Get("swanim", true) == true)
+				{
+					label.TextColor = Colors.Red;
+					Microsoft.Maui.Controls.ViewExtensions.CancelAnimations(label);
+					await label.ScaleTo(1.3, 200, Easing.Linear);
+					await Task.WhenAll(label.FadeTo(0, 300), label.TranslateTo(label.TranslationX, label.TranslationY - 50, 300));
+				}
+				field.Children.Remove(label);
+			}
+		}
 		List<string> words = new List<string>();
 		bool flagenabled = true;
-
-
-
 		int complextime = Data.compl;
 		double randomX;
 		List<string> wordsfield = new List<string>();
@@ -366,32 +384,18 @@ namespace rainwords
 						break;
 				}
 
-
-
 				field.Children.Add(label);
-
 				wordsfield.Add(label.Text);
 				_time2 = new TimeSpan(00, 00, complex);
-				//Animation(label);
-
-
-				label.TranslateTo(randomX, 370, 10000, Easing.Linear);
-
+				label.TranslateTo(randomX,370, Data.speedcsm, Easing.Linear);
 			}
-
-
 		}
-
-
-
-
-
 		void timer_complex()
 		{
 			switch (complextime)
 			{
 				case 0:
-					_time = new TimeSpan(00, 5, 00);
+					_time = new TimeSpan(00, Data.timecsm, 00);
 					_time2 = new TimeSpan(00, 00, 05);
 					complex = 5;
 
@@ -407,7 +411,7 @@ namespace rainwords
 					"вечно","палец","пятка","шишка","ветка","мишка","тесто","кисло","огонь","пятно",};
 					break;
 				case 1:
-					_time = new TimeSpan(00, 3, 00);
+					_time = new TimeSpan(00, Data.timecsm, 00);
 					complex = 4;
 					_time2 = new TimeSpan(00, 00, 04);
 					labels.Remove(cell9); labels.Remove(cell8);
@@ -422,7 +426,7 @@ namespace rainwords
 					"планета","спутник","ледоход","носорог","паводок","сумерки","темнота","красный","конфеты","человек",};
 					break;
 				case 2:
-					_time = new TimeSpan(00, 2, 00);
+					_time = new TimeSpan(00, Data.timecsm, 00);
 					complex = 3;
 					_time2 = new TimeSpan(00, 00, 3);
 					words = new List<string>
@@ -438,7 +442,6 @@ namespace rainwords
 					break;
 			}
 		}
-
 		private void Button_Clicked_1(object sender, EventArgs e)
 		{
 			if (cellindex > 0)
@@ -453,61 +456,47 @@ namespace rainwords
 			for (int i = 0; i < labels.Count; i++)
 			{
 				labels[i].Text = "";
-
 			}
-
 		}
-
 		private void pause_Clicked(object sender, EventArgs e)
 		{
-			double ohayo;
 			_timer2.Stop();
 			_timer.Stop();
 			_timer3.Stop();
 
 			flagenabled = false;
-			//keyletter.IsVisible = false;
 			clearone.IsEnabled = false;
 			clear.IsEnabled = false;
 			absmenu.IsVisible = true;
 			pause.IsEnabled = false;
+
 			foreach (var a in field.Children.ToList())
 			{
 				if (a is Label label1)
 				{
-					ohayo = label1.TranslationY;
-
-					label1.TranslateTo(label1.TranslationX, ohayo, 10000, Easing.Linear);
+					Microsoft.Maui.Controls.ViewExtensions.CancelAnimations(label1);
 				}
-
-
 			}
-
-
-
 		}
-
 		private void start_Clicked(object sender, EventArgs e)
 		{
-
 			flagenabled = true;
+
 			foreach (var a in field.Children.ToList())
 			{
-
 				if (a is Label label1)
 				{
-					label1.TranslateTo(label1.TranslationX, 370, 10000, Easing.Linear);
+					double remainingDistance = 370 - label1.TranslationY;
+					uint newDuration = (uint)(10000 * (remainingDistance / (370 - (-100))));
+
+					label1.TranslateTo(label1.TranslationX, 370, newDuration, Easing.Linear);
 				}
-
-
 			}
-
 			_timer2.Start();
 			_timer.Start();
 			_timer3.Start();
 
 			pause.IsEnabled = true;
-			//keyletter.IsVisible = true;
 			absmenu.IsVisible = false;
 			clearone.IsEnabled = true;
 			clear.IsEnabled = true;
@@ -517,5 +506,4 @@ namespace rainwords
 			await Navigation.PopModalAsync();
 		}
 	}
-
 }

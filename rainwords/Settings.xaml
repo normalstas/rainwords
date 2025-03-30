@@ -53,44 +53,49 @@
                 <Setter Property="TextColor" Value="White"/>
                 <Setter Property="TitleColor" Value="White"/>
             </Style>
-
+            
         </ResourceDictionary>
     </ContentPage.Resources>
     <ScrollView x:Name="mainsettings" Orientation="Vertical">
         <VerticalStackLayout>
-            <HorizontalStackLayout>
+            <VerticalStackLayout>
                 <Label Text="Выбрать язык" x:Name="sellang"/>
-                <Picker x:Name="language" Title="" SelectedIndexChanged="language_SelectedIndexChanged">
-                    <Picker.Items>
-                        <x:String>Русский</x:String>
-                        <x:String>English</x:String>
-                    </Picker.Items>
-                </Picker>
-
-
-            </HorizontalStackLayout>
+                <HorizontalStackLayout>
+                    <Grid>
+                        <Label Text="" FontSize="20" VerticalTextAlignment="Center" HorizontalTextAlignment="End" x:Name="rustrue"
+       WidthRequest="20" HorizontalOptions="Start"/>
+                        <Button CommandParameter="rus" Clicked="LanguageSwitch" BackgroundColor="Transparent"
+                                WidthRequest="2000" x:Name="rusbtn" HeightRequest="40" HorizontalOptions="Start"/>
+                        <Label Text="Русский" x:Name="lbrus" WidthRequest="200" Margin="30,0" HorizontalOptions="Start" VerticalTextAlignment="Center"/>
+                    </Grid>
+                </HorizontalStackLayout>
+                <HorizontalStackLayout Margin="0,10,0,10">
+                    <Grid>
+                        <Label Text="" FontSize="20" VerticalTextAlignment="Center" HorizontalTextAlignment="End" x:Name="entrue"
+                                WidthRequest="20" HorizontalOptions="Start"/>
+                        <Button CommandParameter="en" x:Name="enbtn" Clicked="LanguageSwitch" BackgroundColor="Transparent" WidthRequest="2000" HeightRequest="40" HorizontalOptions="Start"/>
+                        <Label Text="English" x:Name="lben" WidthRequest="200" Margin="30,0" HorizontalOptions="Start" VerticalTextAlignment="Center"/>
+                    </Grid>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
             <HorizontalStackLayout>
-                <Label Text="Выключить звук" x:Name="songsel"/>
+                <Label Text="Выключить звук" x:Name="songsel" VerticalTextAlignment="Center"/>
                 <Switch IsToggled="True" x:Name="songsel_switch" Toggled="song_Toggled"/>
             </HorizontalStackLayout>
-            <VerticalStackLayout>
+            <VerticalStackLayout Margin="0,10,0,10">
+                <HorizontalStackLayout>
+                    <Label Text="Выключить анимации и эффекты" x:Name="animsel" VerticalTextAlignment="Center"/>
+                    <Switch IsToggled="True" x:Name="animsel_switch" Toggled="anim_Toggled"/>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+            <VerticalStackLayout Margin="0,10,0,10">
                 <Label Text="Выбрать тему" x:Name="selecttheme"/>
-                <Grid x:Name="theme">
+                <Grid x:Name="theme" Margin="0,10,0,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition/>
                         <ColumnDefinition/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
-
-                    <!--<ImageButton CornerRadius="20" Source="spinktheme.png" WidthRequest="51" Grid.Column="0"
-                               HeightRequest="51" Clicked="Image_Clicked" BackgroundColor="Transparent"
-                                 />
-                  <ImageButton CornerRadius="20" Source="whitetheme.png" WidthRequest="50" Grid.Column="1"
-              HeightRequest="50" BackgroundColor="Transparent" Clicked="Image_Clicked"
-               />-->
-
-
-
                 </Grid>
             </VerticalStackLayout>
             <Button Text="Сохранить и выйти" Clicked="Button_Clicked" x:Name="exit"/>

@@ -9,5 +9,8 @@ namespace rainwords
 	public static class Data
 	{
 		public static int compl;
+		public static uint speedcsm;
+		public static int timecsm;
+		public static int pointcsm;
 	}
 }

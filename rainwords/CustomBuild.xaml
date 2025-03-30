@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="rainwords.CustomBuild"
+             Title="CustomBuild">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style TargetType="Button" x:Key="whitethemebutton">
+                <Setter Property="BackgroundColor" Value="Gray"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="BorderWidth" Value="2"/>
+                <Setter Property="BorderColor" Value="Black"/>
+            </Style>
+            <Style TargetType="Label" x:Key="whitethemelabel">
+                <Setter Property="TextColor" Value="Black"/>
+            </Style>
+            <Style TargetType="Entry" x:Key="whitethemeentry">
+                <Setter Property="PlaceholderColor" Value="Black"/>
+            </Style>
+            <Style TargetType="Picker" x:Key="whitethemepicker">
+                <Setter Property="TextColor" Value="Black"/>
+                <Setter Property="TitleColor" Value="Black"/>
+                <Setter Property="BackgroundColor" Value="Gray"/>
+            </Style>
+            
+            <Style TargetType="Button" x:Key="pinkthemebutton">
+                <Setter Property="BackgroundColor" Value="White"/>
+                <Setter Property="TextColor" Value="Pink"/>
+                <Setter Property="BorderWidth" Value="2"/>
+                <Setter Property="BorderColor" Value="Gray"/>
+            </Style>
+            <Style TargetType="Label" x:Key="pinkthemelabel">
+                <Setter Property="TextColor" Value="White"/>
+            </Style>
+            <Style TargetType="Entry" x:Key="pinkthemeentry">
+                <Setter Property="BackgroundColor" Value="Gray"/>
+                <Setter Property="PlaceholderColor" Value="White"/>
+            </Style>
+            <Style TargetType="Picker" x:Key="pinkthemepicker">
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="TitleColor" Value="White"/>
+                <Setter Property="BackgroundColor" Value="Gray"/>
+            </Style>
+            
+            <Style TargetType="Button" x:Key="blackthemebutton">
+                <Setter Property="BackgroundColor" Value="White"/>
+                <Setter Property="TextColor" Value="Black"/>
+                <Setter Property="BorderWidth" Value="2"/>
+                <Setter Property="BorderColor" Value="Gray"/>
+            </Style>
+            <Style TargetType="Label" x:Key="blackthemelabel">
+                <Setter Property="TextColor" Value="White"/>
+            </Style>
+            <Style TargetType="Picker" x:Key="blackthemepicker">
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="TitleColor" Value="White"/>
+                <Setter Property="BackgroundColor" Value="Gray"/>
+            </Style>
+            <Style TargetType="Entry" x:Key="blackthemeentry">
+                <Setter Property="BackgroundColor" Value="Gray"/>
+                <Setter Property="PlaceholderColor" Value="White"/>
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <VerticalStackLayout x:Name="allpagefortheme">
+        <Button Text="Назад" Clicked="backcompl_Clicked" Margin="0,0,0,10" HorizontalOptions="Start" x:Name="backcompl"/>
+        <Label Text="Выберите скорость" x:Name="speedcustom"/>
+        <Entry Keyboard="Numeric" x:Name="entryspeed" Placeholder="10-100000 чем выше тем медленнее" TextChanged="entryspeed_TextChanged"/>
+        <Label Text="Выберите сколько очков за слово" Margin="0,20,0,0" x:Name="pointlb"/>
+        <Entry Keyboard="Numeric" x:Name="entrypoint" Placeholder="1-10000" TextChanged="entryspeed_TextChanged"/>
+        <Label Text="Выберите время игры" Margin="0,20,0,0" x:Name="timelb"/>
+        <Entry Keyboard="Numeric" x:Name="entrytime" Placeholder="1-10000 мин" TextChanged="entryspeed_TextChanged"/>
+        <Label Text="Выберите количество букв" x:Name="wordslb" Margin="0,20,0,0"/>
+        <Picker x:Name="wordsell" Title="" SelectedIndexChanged="wordsell_SelectedIndexChanged">
+            <Picker.Items>
+                <x:String>5</x:String>
+                <x:String>7</x:String>
+                <x:String>9</x:String>
+            </Picker.Items>
+        </Picker>
+        <Button Text="В игру" Clicked="customplay_Clicked" x:Name="customplay" Margin="0,60,0,0"/>
+    </VerticalStackLayout>
+</ContentPage>

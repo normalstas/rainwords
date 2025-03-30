@@ -1,4 +1,3 @@
-using IntelliJ.Lang.Annotations;
 using Microsoft.Maui.Controls;
 using System.Numerics;
 
@@ -6,16 +5,22 @@ namespace rainwords;
 
 public partial class Menu : ContentPage
 {
+	private readonly AudioService _audioService = new();
 	public Menu()
 	{
 		InitializeComponent();
+		btnlist.IsVisible = true;
+		InitializeAudio();
 		startgame();
 	}
+	private async void InitializeAudio()
+	{
+		await _audioService.InitializeMusic();
+		_audioService.SetVolume(0.5); // Громкость 50%
+	}
 	MainPage page = new MainPage();
-	string mas;
 	private void Play_Clicked(object sender, EventArgs e)
 	{
-		
 		btnlist.IsVisible = false;
 		btnlist.IsEnabled = false;
 		complex1.IsVisible = true;
@@ -24,6 +29,7 @@ public partial class Menu : ContentPage
 
 	private async void Setting_Clicked(object sender, EventArgs e)
 	{
+		btnlist.IsEnabled = false;
 		await Navigation.PushModalAsync(new Settings());
 		
 	}
@@ -52,17 +58,21 @@ public partial class Menu : ContentPage
 		int complexmenu;
 		var button = sender as Button;
 		
-		switch (button.Text)
+		switch (button.CommandParameter)
 		{
-			case "Продолжить":
+			case "playnext":
 				await Navigation.PushModalAsync(page);
 				break;
-			case "Легкая":
+			case "playeasy":
+				_audioService.ToggleMusic();
+				complex1.IsEnabled = false;
 				complexmenu = 0;
 				Data.compl = complexmenu;
+				Data.timecsm = 5;
+				Data.speedcsm = 10000;
+				Data.pointcsm = 20;
 				page = new MainPage();
 				await Navigation.PushModalAsync(page);
-
 				contin.IsVisible = true;
 
 				complex1.IsVisible = false;
@@ -70,28 +80,15 @@ public partial class Menu : ContentPage
 
 				btnlist.IsVisible = true;
 				btnlist.IsEnabled = true;
-
-				
 				break;
-			case "Easy":
-				complexmenu = 0;
-				Data.compl = complexmenu;
-				page = new MainPage();
-				await Navigation.PushModalAsync(page);
-
-				contin.IsVisible = true;
-
-				complex1.IsVisible = false;
+			case "playaverage":
+				_audioService.ToggleMusic();
 				complex1.IsEnabled = false;
-
-				btnlist.IsVisible = true;
-				btnlist.IsEnabled = true;
-
-
-				break;
-			case "Средняя":
 				complexmenu = 1;
 				Data.compl = complexmenu;
+				Data.timecsm = 3;
+				Data.speedcsm = 10000;
+				Data.pointcsm = 20;
 				page = new MainPage();
 				await Navigation.PushModalAsync(page);
 
@@ -102,22 +99,26 @@ public partial class Menu : ContentPage
 
 				btnlist.IsVisible = true;
 				btnlist.IsEnabled = true;
-
 				break;
-			case "Сложная":
+			case "playhard":
+				_audioService.ToggleMusic();
+				complex1.IsEnabled = false;
 				complexmenu = 2;
 				Data.compl = complexmenu;
+				Data.timecsm = 2;
+				Data.speedcsm = 10000;
+				Data.pointcsm = 20;
 				page = new MainPage();
 				await Navigation.PushModalAsync(page);
-
 				contin.IsVisible = true;
-
 				complex1.IsVisible = false;
 				complex1.IsEnabled = false;
-
 				btnlist.IsVisible = true;
 				btnlist.IsEnabled = true;
-
+				break;
+			case "playcustom":
+				CustomBuild f = new CustomBuild();
+				await Navigation.PushModalAsync(f);
 				break;
 			default:
 				break;
@@ -135,39 +136,9 @@ public partial class Menu : ContentPage
 	
 	void startgame()
 	{
-		//if (Preferences.Default.Get("swsongs", true))
-		//{
-			
-		//	Preferences.Default.Set("swsongscheck", true);
-		//}
-		//else
-		//{
-			
-		//	Preferences.Default.Set("swsongscheck", false);
-		//}
-
-
-		//if (Preferences.Default.Get("languagepick", "") == "Русский")
-		//{
-
-
-		//	Preferences.Default.Set("languagepickcheck", "Русский");
-		//	play.Text = "Играть";
-		//	setting.Text = "Настройки";
-		//	exit.Text = "Выход";
-		//	confirmationexit.Text = "Точно выйти? Ваша игра не будет сохранена";
-		//	exitconf.Text = "Да";
-		//	non.Text = "Нет";
-		//	back.Text = "Назад";
-		//	selectcomplex.Text = "Выберите сложность";
-		//	contin.Text = "Продолжить";
-		//	easy.Text = "Легкая";
-		//	average.Text = "Средняя";
-		//	hard.Text = "Сложная";
-		//}
+		
 		if (Preferences.Default.Get("languagepickcheck", "") == "English")
 		{
-			//Preferences.Default.Set("languagepickcheck", "English");
 			play.Text = "Play";
 			setting.Text = "Setting";
 			exit.Text = "Exit";
@@ -180,6 +151,7 @@ public partial class Menu : ContentPage
 			easy.Text = "Easy";
 			average.Text = "Average";
 			hard.Text = "Hard";
+			custom.Text = "Custom";
 		}
 
 		switch (Preferences.Default.Get("selthemedate", ""))
@@ -222,14 +194,10 @@ public partial class Menu : ContentPage
 
 				confirmationexit.Style = (Style)Resources["blackthemelabel"];
 				selectcomplex.Style = (Style)Resources["blackthemelabel"];
-
-
 				break;
 			default:
 				break;
 		}
-
-
-
 	}
+
 }

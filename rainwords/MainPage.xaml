@@ -63,12 +63,12 @@
             <Grid x:Name="field" HeightRequest="400">
 
                 <Frame BackgroundColor="#80000000" 
-            CornerRadius="20" 
-            HasShadow="True" 
-             Padding="0"
-              HeightRequest="200" 
-              WidthRequest="200"
-             IsVisible="False" x:Name="absmenu"
+                       CornerRadius="20" 
+                       HasShadow="True" 
+                       Padding="0"
+                       HeightRequest="200" 
+                       WidthRequest="200"
+                       IsVisible="False" x:Name="absmenu"
                        Margin="0,200,0,0">
                     <StackLayout Spacing="20" HeightRequest="200" WidthRequest="200" Padding="10">
                         <Label Text="Пауза" x:Name="paus" FontSize="30" HorizontalOptions="CenterAndExpand"/>
@@ -102,7 +102,6 @@
                     <RowDefinition Height="70"/>
                     <RowDefinition Height="70"/>
 
-
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
@@ -116,12 +115,9 @@
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                     <ColumnDefinition/>
-
-
                 </Grid.ColumnDefinitions>
                 <Button Text="Стереть" Grid.Row="2" Grid.Column="0" x:Name="clearone" Clicked="Button_Clicked_1" HorizontalOptions="StartAndExpand"/>
                 <Button Text="Очистить все"  Grid.Row="2" Grid.Column="10" x:Name="clear" Clicked="Button_Clicked_2" HorizontalOptions="End"/>
-
             </Grid>
         </StackLayout>
 
