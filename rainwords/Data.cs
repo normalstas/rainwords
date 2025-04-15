@@ -8,6 +8,7 @@ namespace rainwords
 {
 	public static class Data
 	{
+		public static bool musplay = false;
 		public static int compl;
 		public static uint speedcsm;
 		public static int timecsm;

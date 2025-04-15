@@ -5,20 +5,28 @@ namespace rainwords;
 
 public partial class Menu : ContentPage
 {
-	private readonly AudioService _audioService = new();
-	public Menu()
+	private readonly IAudioService _audioService;
+	public Menu(IAudioService audioService)
 	{
 		InitializeComponent();
 		btnlist.IsVisible = true;
+		_audioService = audioService;
 		InitializeAudio();
 		startgame();
 	}
 	private async void InitializeAudio()
 	{
-		await _audioService.InitializeMusic();
-		_audioService.SetVolume(0.5); // Громкость 50%
+		await _audioService.InitializeAsync();
+		_audioService.PlayMenuMusic();
 	}
-	MainPage page = new MainPage();
+
+	private async void StartGame()
+	{
+		_audioService.PlayGameMusic();
+		page = new MainPage(_audioService);
+		await Navigation.PushAsync(page);
+	}
+	MainPage page;
 	private void Play_Clicked(object sender, EventArgs e)
 	{
 		btnlist.IsVisible = false;
@@ -30,7 +38,7 @@ public partial class Menu : ContentPage
 	private async void Setting_Clicked(object sender, EventArgs e)
 	{
 		btnlist.IsEnabled = false;
-		await Navigation.PushModalAsync(new Settings());
+		await Navigation.PushModalAsync(new Settings(_audioService));
 		
 	}
 
@@ -61,18 +69,18 @@ public partial class Menu : ContentPage
 		switch (button.CommandParameter)
 		{
 			case "playnext":
+				Data.musplay = true;
 				await Navigation.PushModalAsync(page);
 				break;
 			case "playeasy":
-				_audioService.ToggleMusic();
+				StartGame();
+				Data.musplay = true;
 				complex1.IsEnabled = false;
 				complexmenu = 0;
 				Data.compl = complexmenu;
 				Data.timecsm = 5;
 				Data.speedcsm = 10000;
 				Data.pointcsm = 20;
-				page = new MainPage();
-				await Navigation.PushModalAsync(page);
 				contin.IsVisible = true;
 
 				complex1.IsVisible = false;
@@ -82,16 +90,14 @@ public partial class Menu : ContentPage
 				btnlist.IsEnabled = true;
 				break;
 			case "playaverage":
-				_audioService.ToggleMusic();
+				StartGame();
+				Data.musplay = true;
 				complex1.IsEnabled = false;
 				complexmenu = 1;
 				Data.compl = complexmenu;
 				Data.timecsm = 3;
 				Data.speedcsm = 10000;
 				Data.pointcsm = 20;
-				page = new MainPage();
-				await Navigation.PushModalAsync(page);
-
 				contin.IsVisible = true;
 
 				complex1.IsVisible = false;
@@ -101,15 +107,14 @@ public partial class Menu : ContentPage
 				btnlist.IsEnabled = true;
 				break;
 			case "playhard":
-				_audioService.ToggleMusic();
+				StartGame();
+				Data.musplay = true;
 				complex1.IsEnabled = false;
 				complexmenu = 2;
 				Data.compl = complexmenu;
 				Data.timecsm = 2;
 				Data.speedcsm = 10000;
 				Data.pointcsm = 20;
-				page = new MainPage();
-				await Navigation.PushModalAsync(page);
 				contin.IsVisible = true;
 				complex1.IsVisible = false;
 				complex1.IsEnabled = false;
@@ -134,9 +139,14 @@ public partial class Menu : ContentPage
 		btnlist.IsEnabled = true;
 	}
 	
-	void startgame()
+	async void startgame()
 	{
-		
+		if (Preferences.Default.Get("swsongs", true) == true)
+		{
+		}
+		else
+		{
+		}
 		if (Preferences.Default.Get("languagepickcheck", "") == "English")
 		{
 			play.Text = "Play";

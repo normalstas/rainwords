@@ -4,40 +4,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Plugin.Maui.Audio;
 namespace rainwords
 {
 	public class AudioService
 	{
 		private IAudioPlayer _musicPlayer;
-		private bool _isMusicPlaying = false;
-
-		// Инициализация музыки
 		public async Task InitializeMusic()
 		{
-			using var stream = await FileSystem.OpenAppPackageFileAsync("Resources\\Raw\\bgmusinone.mp3");
+			using var stream = await FileSystem.OpenAppPackageFileAsync("bgmusictwo.mp3");
 			_musicPlayer = AudioManager.Current.CreatePlayer(stream);
-			_musicPlayer.Loop = true; // Включить зацикливание
+			_musicPlayer.Loop = true;
+			_musicPlayer.Volume = 1;
 		}
 
-		// Переключение музыки (вкл/выкл)
-		public void ToggleMusic()
+		public async Task InitializeMusic2()
 		{
-			if (_isMusicPlaying)
-			{
-				_musicPlayer.Pause();
-			}
-			else
-			{
-				_musicPlayer.Play();
-			}
-			_isMusicPlaying = !_isMusicPlaying;
+			using var stream = await FileSystem.OpenAppPackageFileAsync("bgmusinone.mp3");
+			_musicPlayer = AudioManager.Current.CreatePlayer(stream);
+			_musicPlayer.Loop = true;
 		}
-
-		// Установка громкости (0.0 - 1.0)
-		public void SetVolume(double volume)
+		public void MuteMusic()
 		{
-			_musicPlayer.Volume = volume;
+			_musicPlayer?.Stop();
+		}
+		public void UnmuteMusic()
+		{
+			_musicPlayer.Play();
 		}
 	}
 }

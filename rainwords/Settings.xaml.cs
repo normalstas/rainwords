@@ -1,11 +1,12 @@
 namespace rainwords;
-
 public partial class Settings : ContentPage
 {
-	public Settings()
+	private readonly IAudioService _audioService;
+	public Settings(IAudioService audioService)
 	{
 		InitializeComponent();
-
+		_audioService = audioService;
+		songsel_switch.IsToggled = _audioService.IsMusicEnabled;
 		string[] datetheme = new string[] { "whitetheme.png", "pinktheme.png", "blacktheme.png" };
 		for (int i = 0; i < datetheme.Length; i++)
 		{
@@ -66,14 +67,22 @@ public partial class Settings : ContentPage
 
 	private void song_Toggled(object sender, ToggledEventArgs e)
 	{
+		_audioService.IsMusicEnabled = e.Value;
+
 		if (songsel_switch.IsToggled)
 		{
+			if (e.Value && Application.Current.MainPage is Menu)
+				_audioService.PlayMenuMusic();
+			if (e.Value && Application.Current.MainPage is MainPage)
+				_audioService.PlayGameMusic();
 			if (Preferences.Default.Get("languagepickcheck", "") == "Русский") { songsel.Text = "Выключить звук"; }
 			if (Preferences.Default.Get("languagepickcheck", "") == "English") { songsel.Text = "Turn off the sound"; }
 			Preferences.Default.Set("swsongs", true);
 		}
 		else
 		{
+			if (!e.Value)
+				_audioService.StopAllMusic();
 			if (Preferences.Default.Get("languagepickcheck", "") == "Русский") { songsel.Text = "Включить звук"; }
 			if (Preferences.Default.Get("languagepickcheck", "") == "English") { songsel.Text = "Turn on the sound"; }
 			Preferences.Default.Set("swsongs", false);
@@ -84,7 +93,7 @@ public partial class Settings : ContentPage
 
 	private async void Button_Clicked(object sender, EventArgs e)
 	{
-		await Navigation.PushModalAsync(new Menu());
+		await Navigation.PushModalAsync(new Menu(_audioService));
 	}
 
 	void startgame()

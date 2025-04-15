@@ -5,7 +5,7 @@ namespace rainwords;
 
 public partial class CustomBuild : ContentPage
 {
-	private readonly AudioService _audioService = new();
+	private readonly IAudioService _audioService;
 	public CustomBuild()
 	{
 		InitializeComponent();
@@ -109,14 +109,14 @@ public partial class CustomBuild : ContentPage
 
 	private async void customplay_Clicked(object sender, EventArgs e)
 	{
-		_audioService.ToggleMusic();
+		Data.musplay = true;
 		entryspeed.Unfocus();
 		entrypoint.Unfocus();
 		entrytime.Unfocus();
 		Data.timecsm = int.Parse(entrytime.Text);
 		Data.speedcsm = uint.Parse(entryspeed.Text);
 		Data.pointcsm = int.Parse(entrypoint.Text);
-		MainPage page = new MainPage();
+		MainPage page = new MainPage(_audioService);
 		await Navigation.PushModalAsync(page);
 	}
 }

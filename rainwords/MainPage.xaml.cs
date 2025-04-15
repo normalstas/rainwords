@@ -11,11 +11,12 @@ namespace rainwords
 
 	public partial class MainPage : ContentPage
 	{
-
-		public MainPage()
+		private readonly IAudioService _audioService;
+		public MainPage(IAudioService audioService)
 		{
 			InitializeComponent();
-
+			_audioService = audioService;
+			InitializeAudio();
 			labels = new List<Label> { cell1, cell2, cell3, cell4, cell5, cell6, cell7, cell8, cell9 };
 			timer_complex();
 			int columns = 11;
@@ -95,23 +96,23 @@ namespace rainwords
 					}
 					if (row == 1)
 					{
-						button.Margin = new Thickness(20,0);
+						button.Margin = new Thickness(20, 0);
 						column += 1;
 					}
 					if (row == 2)
 					{
-						
-						if (column >= 0 && column <= 6) 
-						{ 
+
+						if (column >= 0 && column <= 6)
+						{
 							column += 2;
 						}
 					}
 				}
 				button.Clicked += Button_Clicked;
-					Grid.SetRow(button, row);
-					Grid.SetColumn(button, column);
-					Grid.SetRow(label, row);
-					Grid.SetColumn(label, column);
+				Grid.SetRow(button, row);
+				Grid.SetColumn(button, column);
+				Grid.SetRow(label, row);
+				Grid.SetColumn(label, column);
 
 				keyboard.Children.Add(button);
 				keyboard.Children.Add(label);
@@ -207,7 +208,42 @@ namespace rainwords
 			_timer3.Start();
 
 		}
+		private async void InitializeAudio()
+		{
+			if (!_audioService.IsInitialized)
+			{
+				await _audioService.InitializeAsync();
+			}
+			_audioService.PlayGameMusic();
+		}
 
+		protected override void OnAppearing()
+		{
+			base.OnAppearing();
+			_audioService.PlayGameMusic();
+		}
+
+		protected override void OnDisappearing()
+		{
+			base.OnDisappearing();
+			// Останавливаем музыку только если действительно уходим со страницы
+			if (Navigation.NavigationStack.Count == 0 ||
+				Navigation.NavigationStack.Last() is not MainPage)
+			{
+				_audioService.StopAllMusic();
+			}
+		}
+
+
+		private void OnPauseMusic()
+		{
+			_audioService.PauseGameMusic();
+		}
+
+		private void OnResumeMusic()
+		{
+			_audioService.ResumeGameMusic();
+		}
 		int cellindex = 0;
 		Random random = new Random();
 		int point = 0;
@@ -249,10 +285,18 @@ namespace rainwords
 
 			string timeString = string.Format("{0}:{1:D2}", (int)_time.TotalMinutes, _time.Seconds);
 			tim.Text = timeString;
-
-
 			if (_time.TotalSeconds == 0)
 			{
+				foreach (var a in field.Children.ToList())
+				{
+					if (a is Label label1)
+					{
+						Microsoft.Maui.Controls.ViewExtensions.CancelAnimations(label1);
+					}
+				}
+				_timer2.Stop();
+				_timer.Stop();
+				_timer3.Stop();
 				DisplayAlert("Время вышло!", "Ваши очки: " + point, "ok");
 			}
 		}
@@ -322,7 +366,7 @@ namespace rainwords
 		{
 			if (checkplay)
 			{
-				 
+
 				if (Preferences.Default.Get("swanim", true) == true)
 				{
 					label.TextColor = Colors.Lime;
@@ -387,7 +431,7 @@ namespace rainwords
 				field.Children.Add(label);
 				wordsfield.Add(label.Text);
 				_time2 = new TimeSpan(00, 00, complex);
-				label.TranslateTo(randomX,370, Data.speedcsm, Easing.Linear);
+				label.TranslateTo(randomX, 370, Data.speedcsm, Easing.Linear);
 			}
 		}
 		void timer_complex()
@@ -463,7 +507,7 @@ namespace rainwords
 			_timer2.Stop();
 			_timer.Stop();
 			_timer3.Stop();
-
+			OnPauseMusic();
 			flagenabled = false;
 			clearone.IsEnabled = false;
 			clear.IsEnabled = false;
@@ -481,7 +525,7 @@ namespace rainwords
 		private void start_Clicked(object sender, EventArgs e)
 		{
 			flagenabled = true;
-
+			OnResumeMusic();
 			foreach (var a in field.Children.ToList())
 			{
 				if (a is Label label1)
@@ -492,10 +536,9 @@ namespace rainwords
 					label1.TranslateTo(label1.TranslationX, 370, newDuration, Easing.Linear);
 				}
 			}
-			_timer2.Start();
-			_timer.Start();
-			_timer3.Start();
-
+			if (_time.TotalSeconds != 0) _timer2.Start();
+			if (_time.TotalSeconds != 0) _timer.Start();
+			if (_time.TotalSeconds != 0) _timer3.Start();
 			pause.IsEnabled = true;
 			absmenu.IsVisible = false;
 			clearone.IsEnabled = true;
@@ -503,7 +546,8 @@ namespace rainwords
 		}
 		private async void exmenu(object sender, EventArgs e)
 		{
-			await Navigation.PopModalAsync();
+			await Navigation.PopAsync();
+			_audioService.PlayMenuMusic();
 		}
 	}
 }
