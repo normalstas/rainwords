@@ -16,15 +16,18 @@ public partial class Menu : ContentPage
 	}
 	private async void InitializeAudio()
 	{
-		await _audioService.InitializeAsync();
-		_audioService.PlayMenuMusic();
+		if (Preferences.Default.Get("swsongs", true) == true)
+		{
+			await _audioService.InitializeAsync();
+			_audioService.PlayMenuMusic();
+		}
 	}
 
 	private async void StartGame()
 	{
-		_audioService.PlayGameMusic();
+		if (Preferences.Default.Get("swsongs", true) == true)  _audioService.PlayGameMusic();
 		page = new MainPage(_audioService);
-		await Navigation.PushAsync(page);
+		await Navigation.PushModalAsync(page);
 	}
 	MainPage page;
 	private void Play_Clicked(object sender, EventArgs e)
@@ -39,7 +42,7 @@ public partial class Menu : ContentPage
 	{
 		btnlist.IsEnabled = false;
 		await Navigation.PushModalAsync(new Settings(_audioService));
-		
+
 	}
 
 	private void Exit_Clicked(object sender, EventArgs e)
@@ -65,7 +68,7 @@ public partial class Menu : ContentPage
 	{
 		int complexmenu;
 		var button = sender as Button;
-		
+
 		switch (button.CommandParameter)
 		{
 			case "playnext":
@@ -73,7 +76,6 @@ public partial class Menu : ContentPage
 				await Navigation.PushModalAsync(page);
 				break;
 			case "playeasy":
-				StartGame();
 				Data.musplay = true;
 				complex1.IsEnabled = false;
 				complexmenu = 0;
@@ -81,6 +83,7 @@ public partial class Menu : ContentPage
 				Data.timecsm = 5;
 				Data.speedcsm = 10000;
 				Data.pointcsm = 20;
+				StartGame();
 				contin.IsVisible = true;
 
 				complex1.IsVisible = false;
@@ -90,7 +93,6 @@ public partial class Menu : ContentPage
 				btnlist.IsEnabled = true;
 				break;
 			case "playaverage":
-				StartGame();
 				Data.musplay = true;
 				complex1.IsEnabled = false;
 				complexmenu = 1;
@@ -98,6 +100,7 @@ public partial class Menu : ContentPage
 				Data.timecsm = 3;
 				Data.speedcsm = 10000;
 				Data.pointcsm = 20;
+				StartGame();
 				contin.IsVisible = true;
 
 				complex1.IsVisible = false;
@@ -107,7 +110,6 @@ public partial class Menu : ContentPage
 				btnlist.IsEnabled = true;
 				break;
 			case "playhard":
-				StartGame();
 				Data.musplay = true;
 				complex1.IsEnabled = false;
 				complexmenu = 2;
@@ -115,6 +117,7 @@ public partial class Menu : ContentPage
 				Data.timecsm = 2;
 				Data.speedcsm = 10000;
 				Data.pointcsm = 20;
+				StartGame();
 				contin.IsVisible = true;
 				complex1.IsVisible = false;
 				complex1.IsEnabled = false;
@@ -122,13 +125,13 @@ public partial class Menu : ContentPage
 				btnlist.IsEnabled = true;
 				break;
 			case "playcustom":
-				CustomBuild f = new CustomBuild();
+				CustomBuild f = new CustomBuild(_audioService);
 				await Navigation.PushModalAsync(f);
 				break;
 			default:
 				break;
 		}
-		
+
 	}
 
 	private void back_menu(object sender, EventArgs e)
@@ -138,15 +141,10 @@ public partial class Menu : ContentPage
 		btnlist.IsVisible = true;
 		btnlist.IsEnabled = true;
 	}
-	
+
 	async void startgame()
 	{
-		if (Preferences.Default.Get("swsongs", true) == true)
-		{
-		}
-		else
-		{
-		}
+
 		if (Preferences.Default.Get("languagepickcheck", "") == "English")
 		{
 			play.Text = "Play";

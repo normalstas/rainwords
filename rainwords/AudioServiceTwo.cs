@@ -53,7 +53,7 @@ namespace rainwords
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine($"Ошибка загрузки аудио: {ex.Message}");
+				
 			}
 		}
 

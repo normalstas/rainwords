@@ -6,7 +6,15 @@ public partial class Settings : ContentPage
 	{
 		InitializeComponent();
 		_audioService = audioService;
-		songsel_switch.IsToggled = _audioService.IsMusicEnabled;
+		if (Preferences.Default.Get("swsongs",false) == false)
+		{
+			songsel_switch.IsToggled = false;
+		}
+		else
+		{
+			songsel_switch.IsToggled = true;
+		}
+		//songsel_switch.IsToggled = _audioService.IsMusicEnabled;
 		string[] datetheme = new string[] { "whitetheme.png", "pinktheme.png", "blacktheme.png" };
 		for (int i = 0; i < datetheme.Length; i++)
 		{

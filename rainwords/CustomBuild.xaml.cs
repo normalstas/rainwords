@@ -6,14 +6,34 @@ namespace rainwords;
 public partial class CustomBuild : ContentPage
 {
 	private readonly IAudioService _audioService;
-	public CustomBuild()
+	public CustomBuild(IAudioService audioService)
 	{
 		InitializeComponent();
+		_audioService = audioService;
+		InitializeAudio();
 		startgame();
+	}
+	private async void InitializeAudio()
+	{
+		if (Preferences.Default.Get("swsongs", true) == true)
+		{
+			await _audioService.InitializeAsync();
+			_audioService.PlayMenuMusic();
+		}
+		else
+		{
+			_audioService.IsMusicEnabled = false;
+		}
 	}
 
 	private void startgame()
 	{
+		backcompl.IsEnabled = true;
+		entrypoint.IsEnabled = true;
+		entryspeed.IsEnabled = true;
+		entrytime.IsEnabled = true;
+		wordsell.IsEnabled = true;
+		customplay.IsEnabled = true;
 		if (Preferences.Default.Get("languagepickcheck", "") == "English")
 		{
 			backcompl.Text = "Back";
@@ -91,6 +111,9 @@ public partial class CustomBuild : ContentPage
 
 	private void wordsell_SelectedIndexChanged(object sender, EventArgs e)
 	{
+		entryspeed.Unfocus();
+		entrypoint.Unfocus();
+		entrytime.Unfocus();
 		switch (wordsell.Title)
 		{
 			case "5":
@@ -113,6 +136,13 @@ public partial class CustomBuild : ContentPage
 		entryspeed.Unfocus();
 		entrypoint.Unfocus();
 		entrytime.Unfocus();
+		wordsell.Unfocus();
+		backcompl.IsEnabled = false;
+		entrypoint.IsEnabled = false;
+		entryspeed.IsEnabled = false;
+		entrytime.IsEnabled = false;
+		wordsell.IsEnabled = false;
+		customplay.IsEnabled = false;
 		Data.timecsm = int.Parse(entrytime.Text);
 		Data.speedcsm = uint.Parse(entryspeed.Text);
 		Data.pointcsm = int.Parse(entrypoint.Text);

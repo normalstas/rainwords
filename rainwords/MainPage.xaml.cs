@@ -546,7 +546,7 @@ namespace rainwords
 		}
 		private async void exmenu(object sender, EventArgs e)
 		{
-			await Navigation.PopAsync();
+			await Navigation.PopModalAsync();
 			_audioService.PlayMenuMusic();
 		}
 	}
