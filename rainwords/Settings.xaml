@@ -64,7 +64,7 @@
                     <Grid>
                         <Label Text="" FontSize="20" VerticalTextAlignment="Center" HorizontalTextAlignment="End" x:Name="rustrue"
        WidthRequest="20" HorizontalOptions="Start"/>
-                        <Button CommandParameter="rus" Clicked="LanguageSwitch" BackgroundColor="Transparent"
+                        <Button CommandParameter="Русский" Clicked="LanguageSwitch" BackgroundColor="Transparent"
                                 WidthRequest="2000" x:Name="rusbtn" HeightRequest="40" HorizontalOptions="Start"/>
                         <Label Text="Русский" x:Name="lbrus" WidthRequest="200" Margin="30,0" HorizontalOptions="Start" VerticalTextAlignment="Center"/>
                     </Grid>
@@ -73,7 +73,7 @@
                     <Grid>
                         <Label Text="" FontSize="20" VerticalTextAlignment="Center" HorizontalTextAlignment="End" x:Name="entrue"
                                 WidthRequest="20" HorizontalOptions="Start"/>
-                        <Button CommandParameter="en" x:Name="enbtn" Clicked="LanguageSwitch" BackgroundColor="Transparent" WidthRequest="2000" HeightRequest="40" HorizontalOptions="Start"/>
+                        <Button CommandParameter="English" x:Name="enbtn" Clicked="LanguageSwitch" BackgroundColor="Transparent" WidthRequest="2000" HeightRequest="40" HorizontalOptions="Start"/>
                         <Label Text="English" x:Name="lben" WidthRequest="200" Margin="30,0" HorizontalOptions="Start" VerticalTextAlignment="Center"/>
                     </Grid>
                 </HorizontalStackLayout>

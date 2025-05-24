@@ -1,5 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="rainwords.MainPage">
     <ContentPage.Resources>
@@ -51,8 +50,8 @@
         <StackLayout Orientation="Horizontal" x:Name="coutscore">
             <Button x:Name="pause" Text="п" Clicked="pause_Clicked" HorizontalOptions="Start" VerticalOptions="Start" IsVisible="True"/>
 
-            <Label Text="" x:Name="tim" FontSize="30" BackgroundColor="Transparent"  HorizontalOptions="CenterAndExpand"  VerticalOptions="Start"/>
-            <Label Text="" x:Name="poin" FontSize="30" BackgroundColor="Transparent" HorizontalOptions="End"  VerticalOptions="Start"/>
+            <Label Text="" x:Name="tim" FontSize="30"  HorizontalOptions="CenterAndExpand"  VerticalOptions="Start"/>
+            <Label Text="" x:Name="poin" FontSize="30"  HorizontalOptions="End"  VerticalOptions="Start"/>
 
         </StackLayout>
         <Frame 

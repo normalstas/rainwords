@@ -1,12 +1,17 @@
+using System.Diagnostics;
+
 namespace rainwords;
 public partial class Settings : ContentPage
 {
 	private readonly IAudioService _audioService;
 	public Settings(IAudioService audioService)
 	{
+		var stopwatch = Stopwatch.StartNew();
 		InitializeComponent();
+		stopwatch.Stop();
+		Console.WriteLine($"Settings loaded in {stopwatch.ElapsedMilliseconds} ms");
 		_audioService = audioService;
-		if (Preferences.Default.Get("swsongs",false) == false)
+		if (Preferences.Default.Get("swsongs", false) == false)
 		{
 			songsel_switch.IsToggled = false;
 		}
@@ -16,6 +21,7 @@ public partial class Settings : ContentPage
 		}
 		//songsel_switch.IsToggled = _audioService.IsMusicEnabled;
 		string[] datetheme = new string[] { "whitetheme.png", "pinktheme.png", "blacktheme.png" };
+		var currentTheme = Preferences.Default.Get("selthemedate", "");
 		for (int i = 0; i < datetheme.Length; i++)
 		{
 			var imgbtncreate = new ImageButton
@@ -28,15 +34,7 @@ public partial class Settings : ContentPage
 
 
 			};
-			if (Preferences.Default.Get("selthemedate", "") == null)
-			{
-				imgbtncreate.Source = "swhitetheme.png";
-				Preferences.Default.Set("selthemedate", imgbtncreate.Source.ToString().Remove(0, 6));
-				Preferences.Default.Set("languagepickcheck", "Русский");
-				Preferences.Default.Set("sweff", true);
-				Preferences.Default.Set("swanim", true);
-			}
-			if ("s" + datetheme[i] == mas)
+			if ("s" + datetheme[i] == currentTheme)
 			{
 				imgbtncreate.Source = "s" + datetheme[i];
 
@@ -52,47 +50,34 @@ public partial class Settings : ContentPage
 
 	private async void LanguageSwitch(object sender, EventArgs e)
 	{
-		var btn = sender as Button;
-		if (btn == null) return;
-		if (btn.CommandParameter.ToString() == "en")
-		{
-			enbtn.Margin = new Thickness(20, 0);
-			rusbtn.Margin = new Thickness(0);
-			rustrue.Text = "";
-			entrue.Text = ">";
-			Preferences.Default.Set("languagepickcheck", "English");
-		}
-		else
-		{
-			rusbtn.Margin = new Thickness(20, 0);
-			enbtn.Margin = new Thickness(0);
-			rustrue.Text = ">";
-			entrue.Text = "";
-			Preferences.Default.Set("languagepickcheck", "Русский");
-		}
+		var language = ((Button)sender).CommandParameter.ToString();
+		Preferences.Default.Set("languagepickcheck", language);
+		rustrue.Text = language == "Русский" ? ">" : "";
+		entrue.Text = language == "English" ? ">" : "";
+
 		startgame();
 	}
 
 	private void song_Toggled(object sender, ToggledEventArgs e)
 	{
 		_audioService.IsMusicEnabled = e.Value;
-
+		var language = Preferences.Default.Get("languagepickcheck", "");
 		if (songsel_switch.IsToggled)
 		{
 			if (e.Value && Application.Current.MainPage is Menu)
 				_audioService.PlayMenuMusic();
 			if (e.Value && Application.Current.MainPage is MainPage)
 				_audioService.PlayGameMusic();
-			if (Preferences.Default.Get("languagepickcheck", "") == "Русский") { songsel.Text = "Выключить звук"; }
-			if (Preferences.Default.Get("languagepickcheck", "") == "English") { songsel.Text = "Turn off the sound"; }
+			if (language == "Русский") { songsel.Text = "Выключить звук"; }
+			if (language == "English") { songsel.Text = "Turn off the sound"; }
 			Preferences.Default.Set("swsongs", true);
 		}
 		else
 		{
 			if (!e.Value)
 				_audioService.StopAllMusic();
-			if (Preferences.Default.Get("languagepickcheck", "") == "Русский") { songsel.Text = "Включить звук"; }
-			if (Preferences.Default.Get("languagepickcheck", "") == "English") { songsel.Text = "Turn on the sound"; }
+			if (language == "Русский") { songsel.Text = "Включить звук"; }
+			if (language == "English") { songsel.Text = "Turn on the sound"; }
 			Preferences.Default.Set("swsongs", false);
 
 		}
@@ -101,37 +86,41 @@ public partial class Settings : ContentPage
 
 	private async void Button_Clicked(object sender, EventArgs e)
 	{
-		await Navigation.PushModalAsync(new Menu(_audioService));
+		mainsettings.IsEnabled = false;
+		await Navigation.PushModalAsync(new Menu(_audioService), animated: false);
 	}
 
 	void startgame()
 	{
-		if (Preferences.Default.Get("swanim", true))
+		var language = Preferences.Default.Get("languagepickcheck", "");
+		var swanim = Preferences.Default.Get("swanim", true);
+		var swsongs = Preferences.Default.Get("swsongs", true);
+		if (swanim)
 		{
-			if (Preferences.Default.Get("languagepickcheck", "") == "Русский") { animsel.Text = "Выключить анимации и эффекты"; }
-			if (Preferences.Default.Get("languagepickcheck", "") == "English") { animsel.Text = "Turn off animations and effects"; }
+			if (language == "Русский") { animsel.Text = "Выключить анимации и эффекты"; }
+			if (language == "English") { animsel.Text = "Turn off animations and effects"; }
 			animsel_switch.IsToggled = true;
 		}
 		else
 		{
-			if (Preferences.Default.Get("languagepickcheck", "") == "Русский") { animsel.Text = "Включить анимации и эффекты"; }
-			if (Preferences.Default.Get("languagepickcheck", "") == "English") { animsel.Text = "Enable animations and effects"; }
+			if (language == "Русский") { animsel.Text = "Включить анимации и эффекты"; }
+			if (language == "English") { animsel.Text = "Enable animations and effects"; }
 			animsel_switch.IsToggled = false;
 		}
-		if (Preferences.Default.Get("swsongs", true))
+		if (swsongs)
 		{
-			if (Preferences.Default.Get("languagepickcheck", "") == "Русский") { songsel.Text = "Выключить звук"; }
-			if (Preferences.Default.Get("languagepickcheck", "") == "English") { songsel.Text = "Turn off the sound"; }
+			if (language == "Русский") { songsel.Text = "Выключить звук"; }
+			if (language == "English") { songsel.Text = "Turn off the sound"; }
 			songsel_switch.IsToggled = true;
 		}
 		else
 		{
-			if (Preferences.Default.Get("languagepickcheck", "") == "Русский") { songsel.Text = "Включить звук"; }
-			if (Preferences.Default.Get("languagepickcheck", "") == "English") { songsel.Text = "Turn on the sound"; }
+			if (language == "Русский") { songsel.Text = "Включить звук"; }
+			if (language == "English") { songsel.Text = "Turn on the sound"; }
 			songsel_switch.IsToggled = false;
 		}
 
-		if (Preferences.Default.Get("languagepickcheck", "") == "English")
+		if (language == "English")
 		{
 			rustrue.Text = "";
 			entrue.Text = ">";
@@ -142,13 +131,13 @@ public partial class Settings : ContentPage
 			entrue.Text = "";
 		}
 
-		if (Preferences.Default.Get("languagepickcheck", "") == "English")
+		if (language == "English")
 		{
 			sellang.Text = "Choose a language";
 			exit.Text = "Save and exit";
 			selecttheme.Text = "choose a theme";
 		}
-		if (Preferences.Default.Get("languagepickcheck", "") == "Русский")
+		if (language == "Русский")
 		{
 			sellang.Text = "Выбрать язык";
 			exit.Text = "Сохранить и выйти";
@@ -164,44 +153,45 @@ public partial class Settings : ContentPage
 		{
 			case "swhitetheme.png":
 				mainsettings.BackgroundColor = Colors.White;
+				var whiteLabelStyle = (Style)Resources["whitethemelabel"];
+				foreach (var label in mainsettings.Children.OfType<Label>()) { { label.Style = whiteLabelStyle; ; } }
 
-				foreach (var x in mainsettings.Children.ToList()) { if (x is Label label) { label.Style = (Style)Resources["whitethemelabel"]; } }
-
-				sellang.Style = (Style)Resources["whitethemelabel"];
-				songsel.Style = (Style)Resources["whitethemelabel"];
-				selecttheme.Style = (Style)Resources["whitethemelabel"];
-				animsel.Style = (Style)Resources["whitethemelabel"];
+				sellang.Style = whiteLabelStyle;
+				songsel.Style = whiteLabelStyle;
+				selecttheme.Style = whiteLabelStyle; 
+				animsel.Style = whiteLabelStyle;
 				exit.Style = (Style)Resources["whitethemebutton"];
-				rustrue.Style = (Style)Resources["whitethemelabel"];
-				entrue.Style = (Style)Resources["whitethemelabel"];
-				lben.Style = (Style)Resources["whitethemelabel"];
-				lbrus.Style = (Style)Resources["whitethemelabel"];
+				rustrue.Style = whiteLabelStyle;
+				entrue.Style = whiteLabelStyle;
+				lben.Style = whiteLabelStyle;
+				lbrus.Style = whiteLabelStyle;
 
 				break;
 			case "spinktheme.png":
 				mainsettings.BackgroundColor = Colors.Pink;
-
-				sellang.Style = (Style)Resources["pinkthemelabel"];
-				songsel.Style = (Style)Resources["pinkthemelabel"];
-				selecttheme.Style = (Style)Resources["pinkthemelabel"];
-				animsel.Style = (Style)Resources["pinkthemelabel"];
+				var pinkLabelStyle = (Style)Resources["pinkthemelabel"];
+				sellang.Style = pinkLabelStyle;
+				songsel.Style = pinkLabelStyle;
+				selecttheme.Style = pinkLabelStyle;
+				animsel.Style = pinkLabelStyle;
 				exit.Style = (Style)Resources["pinkthemebutton"];
-				rustrue.Style = (Style)Resources["pinkthemelabel"];
-				entrue.Style = (Style)Resources["pinkthemelabel"];
-				lben.Style = (Style)Resources["pinkthemelabel"];
-				lbrus.Style = (Style)Resources["pinkthemelabel"];
+				rustrue.Style = pinkLabelStyle;
+				entrue.Style = pinkLabelStyle;
+				lben.Style = pinkLabelStyle;
+				lbrus.Style = pinkLabelStyle;
 				break;
 			case "sblacktheme.png":
 				mainsettings.BackgroundColor = Colors.Black;
-				sellang.Style = (Style)Resources["blackthemelabel"];
-				songsel.Style = (Style)Resources["blackthemelabel"];
-				selecttheme.Style = (Style)Resources["blackthemelabel"];
-				animsel.Style = (Style)Resources["blackthemelabel"];
+				var blackLabelStyle = (Style)Resources["blackthemelabel"];
+				sellang.Style = blackLabelStyle;
+				songsel.Style = blackLabelStyle;
+				selecttheme.Style = blackLabelStyle;
+				animsel.Style = blackLabelStyle;
 				exit.Style = (Style)Resources["blackthemebutton"];
-				rustrue.Style = (Style)Resources["blackthemelabel"];
-				entrue.Style = (Style)Resources["blackthemelabel"];
-				lben.Style = (Style)Resources["blackthemelabel"];
-				lbrus.Style = (Style)Resources["blackthemelabel"];
+				rustrue.Style = blackLabelStyle;
+				entrue.Style = blackLabelStyle;
+				lben.Style = blackLabelStyle;
+				lbrus.Style = blackLabelStyle;
 				break;
 			default:
 				break;
@@ -255,16 +245,17 @@ public partial class Settings : ContentPage
 
 	private void anim_Toggled(object sender, ToggledEventArgs e)
 	{
+		var language = Preferences.Default.Get("languagepickcheck", "");
 		if (animsel_switch.IsToggled)
 		{
-			if (Preferences.Default.Get("languagepickcheck", "") == "Русский") { animsel.Text = "Выключить анимации и эффекты"; }
-			if (Preferences.Default.Get("languagepickcheck", "") == "English") { animsel.Text = "Turn off animations and effects"; }
+			if (language == "Русский") { animsel.Text = "Выключить анимации и эффекты"; }
+			if (language == "English") { animsel.Text = "Turn off animations and effects"; }
 			Preferences.Default.Set("swanim", true);
 		}
 		else
 		{
-			if (Preferences.Default.Get("languagepickcheck", "") == "Русский") { animsel.Text = "Включить анимации и эффекты"; }
-			if (Preferences.Default.Get("languagepickcheck", "") == "English") { animsel.Text = "Enable animations and effects"; }
+			if (language == "Русский") { animsel.Text = "Включить анимации и эффекты"; }
+			if (language == "English") { animsel.Text = "Enable animations and effects"; }
 			Preferences.Default.Set("swanim", false);
 
 		}

@@ -1,4 +1,5 @@
 using Microsoft.Maui.Controls;
+using System.Diagnostics;
 using System.Numerics;
 
 namespace rainwords;
@@ -8,7 +9,11 @@ public partial class CustomBuild : ContentPage
 	private readonly IAudioService _audioService;
 	public CustomBuild(IAudioService audioService)
 	{
+
+		var stopwatch = Stopwatch.StartNew();
 		InitializeComponent();
+		stopwatch.Stop();
+		Console.WriteLine($"Settings loaded in {stopwatch.ElapsedMilliseconds} ms");
 		_audioService = audioService;
 		InitializeAudio();
 		startgame();

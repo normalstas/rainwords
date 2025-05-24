@@ -1,4 +1,5 @@
 using Microsoft.Maui.Controls;
+using System.Diagnostics;
 using System.Numerics;
 
 namespace rainwords;
@@ -8,29 +9,41 @@ public partial class Menu : ContentPage
 	private readonly IAudioService _audioService;
 	public Menu(IAudioService audioService)
 	{
+
+		var stopwatch = Stopwatch.StartNew();
 		InitializeComponent();
+		stopwatch.Stop();
+		Console.WriteLine($"Settings loaded in {stopwatch.ElapsedMilliseconds} ms");
 		btnlist.IsVisible = true;
+		var currentTheme = Preferences.Default.Get("selthemedate", "");
+		if (string.IsNullOrEmpty(currentTheme))
+		{
+			Preferences.Default.Set("selthemedate", "swhitetheme.png");
+			Preferences.Default.Set("languagepickcheck", "Русский");
+			Preferences.Default.Set("sweff", true);
+			Preferences.Default.Set("swanim", true);
+		}
 		_audioService = audioService;
 		InitializeAudio();
 		startgame();
 	}
-	private async void InitializeAudio()
+	private async Task InitializeAudio()
 	{
 		if (Preferences.Default.Get("swsongs", true) == true)
 		{
-			await _audioService.InitializeAsync();
+			await Task.Run(() => _audioService.InitializeAsync());
 			_audioService.PlayMenuMusic();
 		}
 	}
 
-	private async void StartGame()
+	private async Task StartGame()
 	{
-		if (Preferences.Default.Get("swsongs", true) == true)  _audioService.PlayGameMusic();
+		if (Preferences.Default.Get("swsongs", true) == true) _audioService.PlayGameMusic();
 		page = new MainPage(_audioService);
 		await Navigation.PushModalAsync(page);
 	}
 	MainPage page;
-	private void Play_Clicked(object sender, EventArgs e)
+	private async void Play_Clicked(object sender, EventArgs e)
 	{
 		btnlist.IsVisible = false;
 		btnlist.IsEnabled = false;
@@ -41,8 +54,8 @@ public partial class Menu : ContentPage
 	private async void Setting_Clicked(object sender, EventArgs e)
 	{
 		btnlist.IsEnabled = false;
-		await Navigation.PushModalAsync(new Settings(_audioService));
-
+		await Navigation.PushModalAsync(new Settings(_audioService), animated: false);
+		
 	}
 
 	private void Exit_Clicked(object sender, EventArgs e)
@@ -68,7 +81,7 @@ public partial class Menu : ContentPage
 	{
 		int complexmenu;
 		var button = sender as Button;
-
+		btnlist.IsEnabled = complex1.IsEnabled = false;
 		switch (button.CommandParameter)
 		{
 			case "playnext":
@@ -83,14 +96,10 @@ public partial class Menu : ContentPage
 				Data.timecsm = 5;
 				Data.speedcsm = 10000;
 				Data.pointcsm = 20;
-				StartGame();
+				await StartGame();
+				//page = new MainPage(_audioService);
+				//await Navigation.PushModalAsync(page);
 				contin.IsVisible = true;
-
-				complex1.IsVisible = false;
-				complex1.IsEnabled = false;
-
-				btnlist.IsVisible = true;
-				btnlist.IsEnabled = true;
 				break;
 			case "playaverage":
 				Data.musplay = true;
@@ -100,14 +109,10 @@ public partial class Menu : ContentPage
 				Data.timecsm = 3;
 				Data.speedcsm = 10000;
 				Data.pointcsm = 20;
-				StartGame();
+				await StartGame();
+				//page = new MainPage(_audioService);
+				//await Navigation.PushModalAsync(page);
 				contin.IsVisible = true;
-
-				complex1.IsVisible = false;
-				complex1.IsEnabled = false;
-
-				btnlist.IsVisible = true;
-				btnlist.IsEnabled = true;
 				break;
 			case "playhard":
 				Data.musplay = true;
@@ -117,12 +122,9 @@ public partial class Menu : ContentPage
 				Data.timecsm = 2;
 				Data.speedcsm = 10000;
 				Data.pointcsm = 20;
-				StartGame();
-				contin.IsVisible = true;
-				complex1.IsVisible = false;
-				complex1.IsEnabled = false;
-				btnlist.IsVisible = true;
-				btnlist.IsEnabled = true;
+				await StartGame();
+				//page = new MainPage();
+				//await Navigation.PushModalAsync(page);
 				break;
 			case "playcustom":
 				CustomBuild f = new CustomBuild(_audioService);
@@ -131,6 +133,12 @@ public partial class Menu : ContentPage
 			default:
 				break;
 		}
+
+		complex1.IsVisible = false;
+		complex1.IsEnabled = false;
+
+		btnlist.IsVisible = true;
+		btnlist.IsEnabled = true;
 
 	}
 
@@ -142,10 +150,10 @@ public partial class Menu : ContentPage
 		btnlist.IsEnabled = true;
 	}
 
-	async void startgame()
+	async Task startgame()
 	{
-
-		if (Preferences.Default.Get("languagepickcheck", "") == "English")
+		var language = Preferences.Default.Get("languagepickcheck", "");
+		if (language == "English")
 		{
 			play.Text = "Play";
 			setting.Text = "Setting";
@@ -161,14 +169,16 @@ public partial class Menu : ContentPage
 			hard.Text = "Hard";
 			custom.Text = "Custom";
 		}
-
-		switch (Preferences.Default.Get("selthemedate", ""))
+		var theme = Preferences.Default.Get("selthemedate", "");
+		var buttons = btnlist.Children.OfType<Button>().Concat(complex1.Children.OfType<Button>());
+		var buttonslist = btnlist.Children.OfType<Button>().Concat(complex1.Children.OfType<Button>());
+		switch (theme)
 		{
 			case "swhitetheme.png":
 				allpagefortheme.BackgroundColor = Colors.White;
 
-				foreach (var x in btnlist.Children.ToList()) { if (x is Button button) { button.Style = (Style)Resources["whitethemebutton"]; } }
-				foreach (var x in complex1.Children.ToList()) { if (x is Button button) { button.Style = (Style)Resources["whitethemebutton"]; } }
+				foreach (var button in buttons) { { button.Style = (Style)Resources["whitethemebutton"]; } }
+				foreach (var button in buttonslist) { { button.Style = (Style)Resources["whitethemebutton"]; } }
 				exitconf.Style = (Style)Resources["whitethemebutton"];
 				non.Style = (Style)Resources["whitethemebutton"];
 
@@ -180,8 +190,8 @@ public partial class Menu : ContentPage
 			case "spinktheme.png":
 				allpagefortheme.BackgroundColor = Colors.Pink;
 
-				foreach (var x in btnlist.Children.ToList()) { if (x is Button button) { button.Style = (Style)Resources["pinkthemebutton"]; } }
-				foreach (var x in complex1.Children.ToList()) { if (x is Button button) { button.Style = (Style)Resources["pinkthemebutton"]; } }
+				foreach (var button in buttons) { { button.Style = (Style)Resources["pinkthemebutton"]; } }
+				foreach (var button in buttonslist) { { button.Style = (Style)Resources["pinkthemebutton"]; } }
 				exitconf.Style = (Style)Resources["pinkthemebutton"];
 				non.Style = (Style)Resources["pinkthemebutton"];
 
@@ -194,8 +204,8 @@ public partial class Menu : ContentPage
 			case "sblacktheme.png":
 				allpagefortheme.BackgroundColor = Colors.Black;
 
-				foreach (var x in btnlist.Children.ToList()) { if (x is Button button) { button.Style = (Style)Resources["blackthemebutton"]; } }
-				foreach (var x in complex1.Children.ToList()) { if (x is Button button) { button.Style = (Style)Resources["blackthemebutton"]; } }
+				foreach (var button in buttons) {  { button.Style = (Style)Resources["blackthemebutton"]; } }
+				foreach (var button in buttonslist) { { button.Style = (Style)Resources["blackthemebutton"]; } }
 				exitconf.Style = (Style)Resources["blackthemebutton"];
 				non.Style = (Style)Resources["blackthemebutton"];
 
