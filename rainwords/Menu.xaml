@@ -1,94 +1,87 @@
-<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="rainwords.Menu"
-             >
+             x:Class="rainwords.Menu">
     <ContentPage.Resources>
         <ResourceDictionary>
-            <Style TargetType="Button" x:Key="whitethemebutton">
+            <Style TargetType="Button" x:Key="BaseButtonStyle">
+                <Setter Property="BorderWidth" Value="2"/>
+            </Style>
+
+            <Style TargetType="Button" x:Key="whitethemebutton" BasedOn="{StaticResource BaseButtonStyle}">
                 <Setter Property="BackgroundColor" Value="Gray"/>
                 <Setter Property="TextColor" Value="White"/>
-                <Setter Property="BorderWidth" Value="2"/>
                 <Setter Property="BorderColor" Value="Black"/>
-
             </Style>
+
             <Style TargetType="Label" x:Key="whitethemelabel">
                 <Setter Property="TextColor" Value="Black"/>
             </Style>
-            <Style TargetType="Button" x:Key="pinkthemebutton">
+
+            <Style TargetType="Button" x:Key="pinkthemebutton" BasedOn="{StaticResource BaseButtonStyle}">
                 <Setter Property="BackgroundColor" Value="White"/>
                 <Setter Property="TextColor" Value="Pink"/>
-                <Setter Property="BorderWidth" Value="2"/>
                 <Setter Property="BorderColor" Value="Gray"/>
-
             </Style>
+
             <Style TargetType="Label" x:Key="pinkthemelabel">
                 <Setter Property="TextColor" Value="White"/>
             </Style>
 
-            <Style TargetType="Button" x:Key="blackthemebutton">
+            <Style TargetType="Button" x:Key="blackthemebutton" BasedOn="{StaticResource BaseButtonStyle}">
                 <Setter Property="BackgroundColor" Value="White"/>
                 <Setter Property="TextColor" Value="Black"/>
-                <Setter Property="BorderWidth" Value="2"/>
                 <Setter Property="BorderColor" Value="Gray"/>
-
             </Style>
+
             <Style TargetType="Label" x:Key="blackthemelabel">
                 <Setter Property="TextColor" Value="White"/>
             </Style>
-
         </ResourceDictionary>
     </ContentPage.Resources>
+
     <VerticalStackLayout x:Name="allpagefortheme">
         <Image Source="logo.png" HorizontalOptions="EndAndExpand" VerticalOptions="Start"/>
         <VerticalStackLayout x:Name="favoritmenu" Spacing="50">
-            <Grid x:Name="btnlist" IsVisible="Collapse" RowSpacing="20">
+            <Grid x:Name="btnlist" IsVisible="True" RowSpacing="20">
                 <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
                 <Button Text="Играть" Clicked="Play_Clicked" x:Name="play" Grid.Row="0"/>
                 <Button Text="Настройки" Clicked="Setting_Clicked" x:Name="setting" Grid.Row="1"/>
                 <Button Text="Выход" Clicked="Exit_Clicked" x:Name="exit" Grid.Row="2"/>
+
                 <Grid x:Name="confirmation" IsVisible="False" Grid.RowSpan="3" BackgroundColor="Black">
                     <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <Label Text="Точно выйти? Ваша игра не будет сохранена" HorizontalTextAlignment="Center" 
-                           FontSize="15" x:Name="confirmationexit" Grid.Row="0"/>
-                    <Grid Grid.Row="2">
+                    <Label Text="Точно выйти? Ваша игра не будет сохранена" 
+                           HorizontalTextAlignment="Center" FontSize="15" 
+                           x:Name="confirmationexit" Grid.Row="0" TextColor="White"/>
+                    <Grid Grid.Row="1" ColumnSpacing="10" Padding="10">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Button x:Name="exitconf" Clicked="exitconf_Clicked" Text="Да" Grid.Column="0"/>
                         <Button x:Name="non" Clicked="cansel" Text="Нет" Grid.Column="1"/>
                     </Grid>
-                    <!--<StackLayout  VerticalOptions="FillAndExpand">
-                        <Label Text="Точно выйти? Ваша игра не будет сохранена" HorizontalTextAlignment="Center" 
-                       FontSize="15" HorizontalOptions="CenterAndExpand" x:Name="confirmationexit"/>
-                    </StackLayout>
-                    <HorizontalStackLayout VerticalOptions="End">
-                        <Button x:Name="exitconf" Clicked="exitconf_Clicked" Text="Да" HorizontalOptions="FillAndExpand"/>
-                        <Button x:Name="non" Clicked="cansel" Text="Нет" HorizontalOptions="FillAndExpand"/>
-                    </HorizontalStackLayout>-->
                 </Grid>
             </Grid>
 
             <VerticalStackLayout x:Name="complex1" IsVisible="False" Spacing="15">
                 <Button Text="Назад" Clicked="back_menu" HorizontalOptions="Start" x:Name="back"/>
                 <Label Text="Выберите сложность" x:Name="selectcomplex"/>
-                <Button Text="Продолжить" Clicked="buttoncomplex"  IsVisible="False" CommandParameter="playnext" x:Name="contin"/>
-                <Button Text="Легкая" Clicked="buttoncomplex"  x:Name="easy" CommandParameter="playeasy"/>
-                <Button Text="Средняя" Clicked="buttoncomplex"  x:Name="average" CommandParameter="playaverage"/>
+                <Button Text="Продолжить" Clicked="buttoncomplex" IsVisible="False" 
+                        CommandParameter="playnext" x:Name="contin"/>
+                <Button Text="Легкая" Clicked="buttoncomplex" x:Name="easy" CommandParameter="playeasy"/>
+                <Button Text="Средняя" Clicked="buttoncomplex" x:Name="average" CommandParameter="playaverage"/>
                 <Button Text="Сложная" Clicked="buttoncomplex" x:Name="hard" CommandParameter="playhard"/>
                 <Button Text="Кастом" Clicked="buttoncomplex" x:Name="custom" CommandParameter="playcustom"/>
             </VerticalStackLayout>
         </VerticalStackLayout>
     </VerticalStackLayout>
-
 </ContentPage>

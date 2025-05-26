@@ -7,14 +7,26 @@ namespace rainwords;
 public partial class Menu : ContentPage
 {
 	private readonly IAudioService _audioService;
+	private MainPage page;
+	private bool _isInitialized;
 	public Menu(IAudioService audioService)
 	{
 
 		var stopwatch = Stopwatch.StartNew();
 		InitializeComponent();
+		_audioService = audioService;
+		Task.Run(() =>
+		{
+			InitializeDefaults();
+			InitializeAudio();
+			InitializeUI();
+		});
 		stopwatch.Stop();
 		Console.WriteLine($"Settings loaded in {stopwatch.ElapsedMilliseconds} ms");
-		btnlist.IsVisible = true;
+	}
+
+	private void InitializeDefaults()
+	{
 		var currentTheme = Preferences.Default.Get("selthemedate", "");
 		if (string.IsNullOrEmpty(currentTheme))
 		{
@@ -23,26 +35,107 @@ public partial class Menu : ContentPage
 			Preferences.Default.Set("sweff", true);
 			Preferences.Default.Set("swanim", true);
 		}
-		_audioService = audioService;
-		InitializeAudio();
-		startgame();
-	}
-	private async Task InitializeAudio()
-	{
-		if (Preferences.Default.Get("swsongs", true) == true)
-		{
-			await Task.Run(() => _audioService.InitializeAsync());
-			_audioService.PlayMenuMusic();
-		}
 	}
 
+	private async Task InitializeAudio()
+	{
+		var audio = Preferences.Default.Get("swsongs", true);
+		if (audio)
+		{
+			await _audioService.InitializeAsync();
+			_audioService.PlayMenuMusic();
+		}
+		_isInitialized = true;
+	}
+
+	private void InitializeUI()
+	{
+		Dispatcher.Dispatch(() =>
+		{
+			var language = Preferences.Default.Get("languagepickcheck", "");
+			if (language == "English")
+			{
+				UpdateTextToEnglish();
+			}
+
+			ApplyTheme();
+			btnlist.IsVisible = true;
+		});
+	}
+
+	private void UpdateTextToEnglish()
+	{
+		play.Text = "Play";
+		setting.Text = "Setting";
+		exit.Text = "Exit";
+		confirmationexit.Text = "Are you sure you want to get out? Your game will not be saved";
+		exitconf.Text = "Yes";
+		non.Text = "No";
+		back.Text = "Back";
+		selectcomplex.Text = "Choose the difficulty";
+		contin.Text = "Continue";
+		easy.Text = "Easy";
+		average.Text = "Average";
+		hard.Text = "Hard";
+		custom.Text = "Custom";
+	}
+	private void ApplyTheme()
+	{
+		var theme = Preferences.Default.Get("selthemedate", "");
+		var buttons = btnlist.Children.OfType<Button>()
+			.Concat(complex1.Children.OfType<Button>())
+			.Concat(new[] { exitconf, non });
+
+		string buttonStyleKey = "", labelStyleKey = "";
+		Color backgroundColor = Colors.White;
+
+		switch (theme)
+		{
+			case "swhitetheme.png":
+				buttonStyleKey = "whitethemebutton";
+				labelStyleKey = "whitethemelabel";
+				backgroundColor = Colors.White;
+				break;
+			case "spinktheme.png":
+				buttonStyleKey = "pinkthemebutton";
+				labelStyleKey = "pinkthemelabel";
+				backgroundColor = Colors.Pink;
+				break;
+			case "sblacktheme.png":
+				buttonStyleKey = "blackthemebutton";
+				labelStyleKey = "blackthemelabel";
+				backgroundColor = Colors.Black;
+				break;
+		}
+
+		if (!string.IsNullOrEmpty(buttonStyleKey))
+		{
+			allpagefortheme.BackgroundColor = backgroundColor;
+
+			var buttonStyle = (Style)Resources[buttonStyleKey];
+			var labelStyle = (Style)Resources[labelStyleKey];
+
+			foreach (var button in buttons)
+			{
+				button.Style = buttonStyle;
+			}
+
+			confirmationexit.Style = labelStyle;
+			selectcomplex.Style = labelStyle;
+		}
+	}
 	private async Task StartGame()
 	{
-		if (Preferences.Default.Get("swsongs", true) == true) _audioService.PlayGameMusic();
+		if (!_isInitialized) return;
+
+		if (Preferences.Default.Get("swsongs", true))
+		{
+			_audioService.PlayGameMusic();
+		}
+
 		page = new MainPage(_audioService);
-		await Navigation.PushModalAsync(page);
+		await Navigation.PushModalAsync(page, animated: false);
 	}
-	MainPage page;
 	private async void Play_Clicked(object sender, EventArgs e)
 	{
 		btnlist.IsVisible = false;
@@ -57,6 +150,7 @@ public partial class Menu : ContentPage
 		await Navigation.PushModalAsync(new Settings(_audioService), animated: false);
 		
 	}
+
 
 	private void Exit_Clicked(object sender, EventArgs e)
 	{
@@ -73,10 +167,8 @@ public partial class Menu : ContentPage
 	{
 		Application.Current.Quit();
 	}
-	private void cansel(object sender, EventArgs e)
-	{
-		confirmation.IsVisible = false;
-	}
+	private void cansel(object sender, EventArgs e) => confirmation.IsVisible = false;
+
 	async private void buttoncomplex(object sender, EventArgs e)
 	{
 		int complexmenu;
@@ -86,7 +178,7 @@ public partial class Menu : ContentPage
 		{
 			case "playnext":
 				Data.musplay = true;
-				await Navigation.PushModalAsync(page);
+				await Navigation.PushModalAsync(page, animated: false);
 				break;
 			case "playeasy":
 				Data.musplay = true;
@@ -149,73 +241,4 @@ public partial class Menu : ContentPage
 		btnlist.IsVisible = true;
 		btnlist.IsEnabled = true;
 	}
-
-	async Task startgame()
-	{
-		var language = Preferences.Default.Get("languagepickcheck", "");
-		if (language == "English")
-		{
-			play.Text = "Play";
-			setting.Text = "Setting";
-			exit.Text = "Exit";
-			confirmationexit.Text = "Are you sure you want to get out? Your game will not be saved";
-			exitconf.Text = "Yes";
-			non.Text = "No";
-			back.Text = "Back";
-			selectcomplex.Text = "Choose the difficulty";
-			contin.Text = "Continue";
-			easy.Text = "Easy";
-			average.Text = "Average";
-			hard.Text = "Hard";
-			custom.Text = "Custom";
-		}
-		var theme = Preferences.Default.Get("selthemedate", "");
-		var buttons = btnlist.Children.OfType<Button>().Concat(complex1.Children.OfType<Button>());
-		var buttonslist = btnlist.Children.OfType<Button>().Concat(complex1.Children.OfType<Button>());
-		switch (theme)
-		{
-			case "swhitetheme.png":
-				allpagefortheme.BackgroundColor = Colors.White;
-
-				foreach (var button in buttons) { { button.Style = (Style)Resources["whitethemebutton"]; } }
-				foreach (var button in buttonslist) { { button.Style = (Style)Resources["whitethemebutton"]; } }
-				exitconf.Style = (Style)Resources["whitethemebutton"];
-				non.Style = (Style)Resources["whitethemebutton"];
-
-
-				confirmationexit.Style = (Style)Resources["whitethemelabel"];
-				selectcomplex.Style = (Style)Resources["whitethemelabel"];
-
-				break;
-			case "spinktheme.png":
-				allpagefortheme.BackgroundColor = Colors.Pink;
-
-				foreach (var button in buttons) { { button.Style = (Style)Resources["pinkthemebutton"]; } }
-				foreach (var button in buttonslist) { { button.Style = (Style)Resources["pinkthemebutton"]; } }
-				exitconf.Style = (Style)Resources["pinkthemebutton"];
-				non.Style = (Style)Resources["pinkthemebutton"];
-
-
-				confirmationexit.Style = (Style)Resources["pinkthemelabel"];
-				selectcomplex.Style = (Style)Resources["pinkthemelabel"];
-
-
-				break;
-			case "sblacktheme.png":
-				allpagefortheme.BackgroundColor = Colors.Black;
-
-				foreach (var button in buttons) {  { button.Style = (Style)Resources["blackthemebutton"]; } }
-				foreach (var button in buttonslist) { { button.Style = (Style)Resources["blackthemebutton"]; } }
-				exitconf.Style = (Style)Resources["blackthemebutton"];
-				non.Style = (Style)Resources["blackthemebutton"];
-
-
-				confirmationexit.Style = (Style)Resources["blackthemelabel"];
-				selectcomplex.Style = (Style)Resources["blackthemelabel"];
-				break;
-			default:
-				break;
-		}
-	}
-
 }

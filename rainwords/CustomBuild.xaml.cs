@@ -1,26 +1,32 @@
 using Microsoft.Maui.Controls;
 using System.Diagnostics;
 using System.Numerics;
+using System.Text;
 
 namespace rainwords;
 
 public partial class CustomBuild : ContentPage
 {
 	private readonly IAudioService _audioService;
+	private bool _isInitialized;
 	public CustomBuild(IAudioService audioService)
 	{
-
+		_audioService = audioService;
 		var stopwatch = Stopwatch.StartNew();
 		InitializeComponent();
+		Task.Run(() =>
+		{
+			InitializeAudio();
+			Dispatcher.Dispatch(startgame);
+		});
 		stopwatch.Stop();
 		Console.WriteLine($"Settings loaded in {stopwatch.ElapsedMilliseconds} ms");
-		_audioService = audioService;
-		InitializeAudio();
-		startgame();
 	}
 	private async void InitializeAudio()
 	{
-		if (Preferences.Default.Get("swsongs", true) == true)
+		if (_isInitialized) return;
+
+		if (Preferences.Default.Get("swsongs", true))
 		{
 			await _audioService.InitializeAsync();
 			_audioService.PlayMenuMusic();
@@ -29,6 +35,7 @@ public partial class CustomBuild : ContentPage
 		{
 			_audioService.IsMusicEnabled = false;
 		}
+		_isInitialized = true;
 	}
 
 	private void startgame()
@@ -39,7 +46,9 @@ public partial class CustomBuild : ContentPage
 		entrytime.IsEnabled = true;
 		wordsell.IsEnabled = true;
 		customplay.IsEnabled = true;
-		if (Preferences.Default.Get("languagepickcheck", "") == "English")
+
+		var landuage = Preferences.Default.Get("languagepickcheck", "");
+		if (landuage == "English")
 		{
 			backcompl.Text = "Back";
 			speedcustom.Text = "Choose a speed";
@@ -50,108 +59,128 @@ public partial class CustomBuild : ContentPage
 			wordslb.Text = "Select the number of letters";
 			customplay.Text = "Into the game";
 		}
+		var theme = Preferences.Default.Get("selthemedate", "");
+		if (string.IsNullOrEmpty(theme)) return;
 
-		switch (Preferences.Default.Get("selthemedate", ""))
+		var themePrefix = theme.Replace("stheme.png", "").Replace("s", "").Replace(".png", "");
+		ApplyTheme(themePrefix);
+	}
+
+	private void ApplyTheme(string themePrefix)
+	{
+		allpagefortheme.BackgroundColor = themePrefix switch
 		{
-			case "swhitetheme.png":
-				allpagefortheme.BackgroundColor = Colors.White;
+			"white" => Colors.White,
+			"pink" => Colors.Pink,
+			"black" => Colors.Black,
+			_ => allpagefortheme.BackgroundColor
+		};
 
-				foreach (var x in allpagefortheme.Children.ToList()) { if (x is Button button) { button.Style = (Style)Resources["whitethemebutton"]; } }
-				foreach (var x in allpagefortheme.Children.ToList()) { if (x is Label label) { label.Style = (Style)Resources["whitethemelabel"]; } }
-				foreach (var x in allpagefortheme.Children.ToList()) { if (x is Entry entry) { entry.Style = (Style)Resources["whitethemeentry"]; entry.TextColor = Colors.Black; } }
-				wordsell.Style = (Style)Resources["whitethemepicker"];
-
-				break;
-			case "spinktheme.png":
-				allpagefortheme.BackgroundColor = Colors.Pink;
-
-				foreach (var x in allpagefortheme.Children.ToList()) { if (x is Button button) { button.Style = (Style)Resources["pinkthemebutton"]; } }
-				foreach (var x in allpagefortheme.Children.ToList()) { if (x is Label label) { label.Style = (Style)Resources["pinkthemelabel"]; } }
-				foreach (var x in allpagefortheme.Children.ToList()) { if (x is Entry entry) { entry.Style = (Style)Resources["pinkthemeentry"]; entry.TextColor = Colors.White; } }
-				wordsell.Style = (Style)Resources["pinkthemepicker"];
-				break;
-			case "sblacktheme.png":
-				allpagefortheme.BackgroundColor = Colors.Black;
-
-				foreach (var x in allpagefortheme.Children.ToList()) { if (x is Button button) { button.Style = (Style)Resources["blackthemebutton"]; } }
-				foreach (var x in allpagefortheme.Children.ToList()) { if (x is Label label) { label.Style = (Style)Resources["blackthemelabel"]; } }
-				foreach (var x in allpagefortheme.Children.ToList()) { if (x is Entry entry) { entry.Style = (Style)Resources["blackthemeentry"]; entry.TextColor = Colors.White; } }
-				wordsell.Style = (Style)Resources["blackthemepicker"];
-				break;
-			default:
-				break;
+		foreach (var child in allpagefortheme.Children)
+		{
+			switch (child)
+			{
+				case Button button:
+					button.Style = (Style)Resources[$"{themePrefix}button"];
+					break;
+				case Label label:
+					label.Style = (Style)Resources[$"{themePrefix}label"];
+					break;
+				case Entry entry:
+					entry.Style = (Style)Resources[$"{themePrefix}entry"];
+					entry.TextColor = themePrefix == "white" ? Colors.Black : Colors.White;
+					break;
+			}
 		}
+
+
+		wordsell.Style = (Style)Resources[$"{themePrefix}picker"];
 	}
 
 	private async void backcompl_Clicked(object sender, EventArgs e)
 	{
-		entryspeed.Unfocus();
-		entrypoint.Unfocus();
-		entrytime.Unfocus();
-		await Navigation.PopModalAsync();
+		UnfocusAll();
+		await Navigation.PopModalAsync(animated: false);
 	}
 
 	private void entryspeed_TextChanged(object sender, TextChangedEventArgs e)
 	{
-		var entr = sender as Entry;
-		if (entr == null) return;
-		switch (entr.Placeholder)
+		if (sender is not Entry entry) return;
+
+		var isValid = entry.Placeholder switch
 		{
-			case "10-100000 чем выше тем медленнее":
-				if (entr.Text.Length == 0 || entr.Text.Length > 100000) entr.TextColor = Colors.Red;
-				else entr.TextColor = Colors.Black;
-				break;
-			case "1-10000":
-				if (entr.Text.Length == 0 || entr.Text.Length > 10000) entr.TextColor = Colors.Red;
-				else entr.TextColor = Colors.Black;
-				break;
-			case "1-10000 мин":
-				if (entr.Text.Length == 0 || entr.Text.Length > 10000) entr.TextColor = Colors.Red;
-				else entr.TextColor = Colors.Black;
-				break;
-			default:
-				break;
-		}
+			"10-100000 чем выше тем медленнее" or
+			"1-10000" or
+			"1-10000 мин" => !string.IsNullOrEmpty(entry.Text) && entry.Text.Length <= 10000,
+			_ => true
+		};
+		entry.TextColor = isValid ? (allpagefortheme.BackgroundColor == Colors.White ? Colors.Black : Colors.White) : Colors.Red;
 	}
 
 	private void wordsell_SelectedIndexChanged(object sender, EventArgs e)
 	{
-		entryspeed.Unfocus();
-		entrypoint.Unfocus();
-		entrytime.Unfocus();
-		switch (wordsell.Title)
-		{
-			case "5":
-				Data.compl = 0;
-				break;
-			case "7":
-				Data.compl = 1;
-				break;
-			case "9":
-				Data.compl = 2;
-				break;
-			default:
-				break;
-		}
+		UnfocusAll();
+		Data.compl = wordsell.SelectedIndex;
 	}
 
 	private async void customplay_Clicked(object sender, EventArgs e)
 	{
+		if (!ValidateInputs()) return;
+
 		Data.musplay = true;
+		UnfocusAll();
+		DisableAllControls();
+		StringBuilder error = new StringBuilder();
+		if (string.IsNullOrEmpty(entrypoint.Text) || !int.TryParse(entrypoint.Text, out int a) || a > 10000)
+		{
+			error.AppendLine("Ошибка,неверное число за очки");
+			entrypoint.Text = string.Empty;
+		}
+		if (string.IsNullOrEmpty(entrytime.Text) || !int.TryParse(entrytime.Text, out int b) || b > 10000)
+		{
+			error.AppendLine("Ошибка,неверное число времени");
+			entrytime.Text = string.Empty;
+		}
+		if (string.IsNullOrEmpty(entryspeed.Text) || !int.TryParse(entryspeed.Text, out int c) || c > 100000)
+		{
+			error.AppendLine("Ошибка,неверное число скорости");
+			entryspeed.Text = string.Empty;
+		}
+		if (error.Length > 0)
+		{
+			await DisplayAlert("",error.ToString(),"ок");
+			return;
+		}
+		Data.timecsm = int.Parse(entrytime.Text);
+		Data.speedcsm = uint.Parse(entryspeed.Text);
+		Data.pointcsm = int.Parse(entrypoint.Text);
+
+		var page = new MainPage(_audioService);
+		await Navigation.PushModalAsync(page, animated: false);
+	}
+
+	private void UnfocusAll()
+	{
 		entryspeed.Unfocus();
 		entrypoint.Unfocus();
 		entrytime.Unfocus();
 		wordsell.Unfocus();
+	}
+
+	private void DisableAllControls()
+	{
 		backcompl.IsEnabled = false;
 		entrypoint.IsEnabled = false;
 		entryspeed.IsEnabled = false;
 		entrytime.IsEnabled = false;
 		wordsell.IsEnabled = false;
 		customplay.IsEnabled = false;
-		Data.timecsm = int.Parse(entrytime.Text);
-		Data.speedcsm = uint.Parse(entryspeed.Text);
-		Data.pointcsm = int.Parse(entrypoint.Text);
-		MainPage page = new MainPage(_audioService);
-		await Navigation.PushModalAsync(page);
+	}
+
+	private bool ValidateInputs()
+	{
+		return !string.IsNullOrEmpty(entrytime.Text) &&
+			   !string.IsNullOrEmpty(entryspeed.Text) &&
+			   !string.IsNullOrEmpty(entrypoint.Text);
 	}
 }

@@ -20,7 +20,6 @@ namespace rainwords
 			_audioService = audioService;
 			CreatingLabels.Initialize(10);
 			InitializeAudio();
-			timer_complex();
 			LoadKeyboard();
 			ApplyTheme();
 			StartTimers();
@@ -113,6 +112,7 @@ namespace rainwords
 				keyboard.Children.Add(label);
 
 			}
+			timer_complex();
 			for (int i = 0; i < labels.Count; i++)
 			{
 				var label = new Label
