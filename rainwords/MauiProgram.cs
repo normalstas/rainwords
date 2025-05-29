@@ -14,7 +14,6 @@ namespace rainwords
 				.UseMauiApp<App>()
 				.UseMauiCommunityToolkit() // Активируем CommunityToolkit
 				.ConfigureFonts(fonts => fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular"));
-
 			// Регистрируем AudioManager и наш AudioService
 			builder.Services.AddSingleton(AudioManager.Current); // Plugin.Maui.Audio
 			builder.Services.AddSingleton<IAudioService, AudioServiceTwo>();

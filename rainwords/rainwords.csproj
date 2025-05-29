@@ -73,18 +73,24 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiAsset Update="Resources\Raw\bgmusictwo.mp3">
+	  <MauiAsset Update="Resources\Raw\bgmusicgame.mp3">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </MauiAsset>
-	  <MauiAsset Update="Resources\Raw\bgmusinone.mp3">
+	  <MauiAsset Update="Resources\Raw\bgmusicmenu.mp3">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </MauiAsset>
+	  <MauiAsset Update="Resources\Raw\explasound.wav">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </MauiAsset>
+	  <MauiAsset Update="Resources\Raw\losssound.wav">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </MauiAsset>
+	  <MauiAsset Update="Resources\Raw\winsound.wav">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </MauiAsset>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="BaseMusicPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
 	  <MauiXaml Update="CustomBuild.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

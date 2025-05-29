@@ -1,3 +1,5 @@
+using Microsoft.Maui;
+using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
 using System.Diagnostics;
 using System.Numerics;
@@ -9,9 +11,9 @@ public partial class Menu : ContentPage
 	private readonly IAudioService _audioService;
 	private MainPage page;
 	private bool _isInitialized;
+	private bool _musicda = true;
 	public Menu(IAudioService audioService)
 	{
-
 		var stopwatch = Stopwatch.StartNew();
 		InitializeComponent();
 		_audioService = audioService;
@@ -21,17 +23,38 @@ public partial class Menu : ContentPage
 			InitializeAudio();
 			InitializeUI();
 		});
+		back.Text = "<";
 		stopwatch.Stop();
 		Console.WriteLine($"Settings loaded in {stopwatch.ElapsedMilliseconds} ms");
+		App.GamePaused += PauseMenu;
+		App.GameResumed += ResumeMenu;
 	}
 
+	private void PauseMenu()
+	{
+		_audioService.StopMenuMusic();
+		_musicda = false;
+	}
+
+	private void ResumeMenu()
+	{
+		if(!_musicda) _audioService.StartMenuMusic();
+	}
+
+	protected override void OnDisappearing()
+	{
+		base.OnDisappearing();
+		// ќтписка от событий при уходе со страницы
+		App.GamePaused -= PauseMenu;
+		App.GameResumed -= ResumeMenu;
+	}
 	private void InitializeDefaults()
 	{
 		var currentTheme = Preferences.Default.Get("selthemedate", "");
 		if (string.IsNullOrEmpty(currentTheme))
 		{
 			Preferences.Default.Set("selthemedate", "swhitetheme.png");
-			Preferences.Default.Set("languagepickcheck", "–усский");
+			Preferences.Default.Set("languagepickcheck", "–”—— »…");
 			Preferences.Default.Set("sweff", true);
 			Preferences.Default.Set("swanim", true);
 		}
@@ -53,7 +76,7 @@ public partial class Menu : ContentPage
 		Dispatcher.Dispatch(() =>
 		{
 			var language = Preferences.Default.Get("languagepickcheck", "");
-			if (language == "English")
+			if (language == "ENGLISH")
 			{
 				UpdateTextToEnglish();
 			}
@@ -68,11 +91,11 @@ public partial class Menu : ContentPage
 		play.Text = "Play";
 		setting.Text = "Setting";
 		exit.Text = "Exit";
-		confirmationexit.Text = "Are you sure you want to get out? Your game will not be saved";
+		confirmationexitone.Text = "Definitely get out?";
+		confirmationexittwo.Text = "Your game will not be saved!";
 		exitconf.Text = "Yes";
 		non.Text = "No";
-		back.Text = "Back";
-		selectcomplex.Text = "Choose the difficulty";
+		selectcomplex.Text = "DIFFICULTY";
 		contin.Text = "Continue";
 		easy.Text = "Easy";
 		average.Text = "Average";
@@ -87,40 +110,45 @@ public partial class Menu : ContentPage
 			.Concat(new[] { exitconf, non });
 
 		string buttonStyleKey = "", labelStyleKey = "";
-		Color backgroundColor = Colors.White;
-
+		string backgroundColor = "bgwhite.jpeg";
+		Color BackInfor = Colors.White;
+		Color StrokeInfo = Colors.Black;
 		switch (theme)
 		{
 			case "swhitetheme.png":
 				buttonStyleKey = "whitethemebutton";
 				labelStyleKey = "whitethemelabel";
-				backgroundColor = Colors.White;
+				backgroundColor = "bgwhite.jpeg";
 				break;
 			case "spinktheme.png":
 				buttonStyleKey = "pinkthemebutton";
 				labelStyleKey = "pinkthemelabel";
-				backgroundColor = Colors.Pink;
+				backgroundColor = "bgpink.jpeg";
+				BackInfor = Colors.HotPink;
 				break;
 			case "sblacktheme.png":
 				buttonStyleKey = "blackthemebutton";
 				labelStyleKey = "blackthemelabel";
-				backgroundColor = Colors.Black;
+				backgroundColor = "bgblack.jpeg";
+				BackInfor = Colors.Black;
+				StrokeInfo = Colors.White;
 				break;
 		}
 
 		if (!string.IsNullOrEmpty(buttonStyleKey))
 		{
-			allpagefortheme.BackgroundColor = backgroundColor;
-
+			bg.Source = backgroundColor;
 			var buttonStyle = (Style)Resources[buttonStyleKey];
 			var labelStyle = (Style)Resources[labelStyleKey];
-
+			confirmation.BackgroundColor = BackInfor;
+			iamstroke.Stroke = StrokeInfo;
 			foreach (var button in buttons)
 			{
 				button.Style = buttonStyle;
 			}
-
-			confirmationexit.Style = labelStyle;
+			back.Style = labelStyle;
+			confirmationexitone.Style = labelStyle;
+			confirmationexittwo.Style = labelStyle;
 			selectcomplex.Style = labelStyle;
 		}
 	}
@@ -138,10 +166,12 @@ public partial class Menu : ContentPage
 	}
 	private async void Play_Clicked(object sender, EventArgs e)
 	{
+		back.IsVisible = true;
 		btnlist.IsVisible = false;
 		btnlist.IsEnabled = false;
 		complex1.IsVisible = true;
 		complex1.IsEnabled = true;
+		ApplyTheme();
 	}
 
 	private async void Setting_Clicked(object sender, EventArgs e)
@@ -156,6 +186,9 @@ public partial class Menu : ContentPage
 	{
 		if (contin.IsVisible)
 		{
+			play.IsEnabled = false;
+			setting.IsEnabled = false;
+			exit.IsEnabled = false;
 			confirmation.IsVisible = true;
 		}
 		else
@@ -163,13 +196,17 @@ public partial class Menu : ContentPage
 			Application.Current.Quit();
 		}
 	}
-	private void exitconf_Clicked(object sender, EventArgs e)
-	{
-		Application.Current.Quit();
-	}
-	private void cansel(object sender, EventArgs e) => confirmation.IsVisible = false;
+	private void exitconf_Clicked(object sender, EventArgs e) => Application.Current.Quit();
 
-	async private void buttoncomplex(object sender, EventArgs e)
+	private void cansel(object sender, EventArgs e)
+	{
+		play.IsEnabled = true;
+		setting.IsEnabled = true;
+		exit.IsEnabled = true;
+		confirmation.IsVisible = false;
+	}
+
+		async private void buttoncomplex(object sender, EventArgs e)
 	{
 		int complexmenu;
 		var button = sender as Button;
@@ -177,12 +214,14 @@ public partial class Menu : ContentPage
 		switch (button.CommandParameter)
 		{
 			case "playnext":
+				back.IsVisible = false;
 				Data.musplay = true;
 				await Navigation.PushModalAsync(page, animated: false);
 				break;
 			case "playeasy":
 				Data.musplay = true;
 				complex1.IsEnabled = false;
+				back.IsVisible = false;
 				complexmenu = 0;
 				Data.compl = complexmenu;
 				Data.timecsm = 5;
@@ -194,6 +233,7 @@ public partial class Menu : ContentPage
 				contin.IsVisible = true;
 				break;
 			case "playaverage":
+				back.IsVisible = false;
 				Data.musplay = true;
 				complex1.IsEnabled = false;
 				complexmenu = 1;
@@ -209,6 +249,7 @@ public partial class Menu : ContentPage
 			case "playhard":
 				Data.musplay = true;
 				complex1.IsEnabled = false;
+				back.IsVisible = false;
 				complexmenu = 2;
 				Data.compl = complexmenu;
 				Data.timecsm = 2;
@@ -219,6 +260,7 @@ public partial class Menu : ContentPage
 				//await Navigation.PushModalAsync(page);
 				break;
 			case "playcustom":
+				back.IsVisible = false;
 				CustomBuild f = new CustomBuild(_audioService);
 				await Navigation.PushModalAsync(f);
 				break;
@@ -236,9 +278,11 @@ public partial class Menu : ContentPage
 
 	private void back_menu(object sender, EventArgs e)
 	{
+		back.IsVisible = false;
 		complex1.IsVisible = false;
 		complex1.IsEnabled = false;
 		btnlist.IsVisible = true;
 		btnlist.IsEnabled = true;
+		ApplyTheme();
 	}
 }

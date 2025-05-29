@@ -21,6 +21,27 @@ public partial class CustomBuild : ContentPage
 		});
 		stopwatch.Stop();
 		Console.WriteLine($"Settings loaded in {stopwatch.ElapsedMilliseconds} ms");
+		backcompl.Text = "<";
+		App.GamePaused += PauseMenu;
+		App.GameResumed += ResumeMenu;
+	}
+
+	private void PauseMenu()
+	{
+		_audioService.StopMenuMusic();
+	}
+
+	private void ResumeMenu()
+	{
+		_audioService.StartMenuMusic();
+	}
+
+	protected override void OnDisappearing()
+	{
+		base.OnDisappearing();
+		// Отписка от событий при уходе со страницы
+		App.GamePaused -= PauseMenu;
+		App.GameResumed -= ResumeMenu;
 	}
 	private async void InitializeAudio()
 	{
@@ -40,24 +61,20 @@ public partial class CustomBuild : ContentPage
 
 	private void startgame()
 	{
-		backcompl.IsEnabled = true;
-		entrypoint.IsEnabled = true;
-		entryspeed.IsEnabled = true;
-		entrytime.IsEnabled = true;
-		wordsell.IsEnabled = true;
-		customplay.IsEnabled = true;
+		allpagefortheme.IsEnabled = true;
 
 		var landuage = Preferences.Default.Get("languagepickcheck", "");
-		if (landuage == "English")
+		if (landuage == "ENGLISH")
 		{
-			backcompl.Text = "Back";
-			speedcustom.Text = "Choose a speed";
-			entryspeed.Placeholder = "10-100000 the higher the slower";
-			pointlb.Text = "Choose how many points per word";
-			timelb.Text = "Choose the game time";
+			//backcompl.Text = "Back";
+			speedcustom.Text = "SPEED";
+			entryspeed.Placeholder = "10-100000";
+			pointlb.Text = "POINTS";
+			timelb.Text = "TIME";
 			entrytime.Placeholder = "1-10000 min";
-			wordslb.Text = "Select the number of letters";
-			customplay.Text = "Into the game";
+			wordslb.Text = "NUMBER OF LETTERS";
+			customplay.Text = "GAME";
+			titlelb.Text = "CUSTOM MODE";
 		}
 		var theme = Preferences.Default.Get("selthemedate", "");
 		if (string.IsNullOrEmpty(theme)) return;
@@ -70,9 +87,9 @@ public partial class CustomBuild : ContentPage
 	{
 		allpagefortheme.BackgroundColor = themePrefix switch
 		{
-			"white" => Colors.White,
-			"pink" => Colors.Pink,
-			"black" => Colors.Black,
+			"whitetheme" => Colors.White,
+			"pinktheme" => Colors.HotPink,
+			"blacktheme" => Colors.Black,
 			_ => allpagefortheme.BackgroundColor
 		};
 
@@ -88,13 +105,19 @@ public partial class CustomBuild : ContentPage
 					break;
 				case Entry entry:
 					entry.Style = (Style)Resources[$"{themePrefix}entry"];
-					entry.TextColor = themePrefix == "white" ? Colors.Black : Colors.White;
+					entry.TextColor = themePrefix == "blacktheme" ? Colors.Black : Colors.White;
+					break;
+				case Frame frame:
+					frame.BackgroundColor = themePrefix == "blacktheme" ? Colors.Black : Colors.White;
+					break;
+				case Border border:
+					border.Stroke = themePrefix == "blacktheme" ? Colors.White : Colors.Black;
 					break;
 			}
 		}
 
-
-		wordsell.Style = (Style)Resources[$"{themePrefix}picker"];
+		backcompl.TextColor = themePrefix == "blacktheme" ? Colors.White : Colors.Black;
+		titlelb.TextColor = themePrefix == "blacktheme" ? Colors.White : Colors.Black; 
 	}
 
 	private async void backcompl_Clicked(object sender, EventArgs e)
@@ -117,31 +140,25 @@ public partial class CustomBuild : ContentPage
 		entry.TextColor = isValid ? (allpagefortheme.BackgroundColor == Colors.White ? Colors.Black : Colors.White) : Colors.Red;
 	}
 
-	private void wordsell_SelectedIndexChanged(object sender, EventArgs e)
-	{
-		UnfocusAll();
-		Data.compl = wordsell.SelectedIndex;
-	}
-
 	private async void customplay_Clicked(object sender, EventArgs e)
 	{
 		if (!ValidateInputs()) return;
 
+		allpagefortheme.IsEnabled = false;
 		Data.musplay = true;
 		UnfocusAll();
-		DisableAllControls();
 		StringBuilder error = new StringBuilder();
-		if (string.IsNullOrEmpty(entrypoint.Text) || !int.TryParse(entrypoint.Text, out int a) || a > 10000)
+		if (!int.TryParse(entrypoint.Text, out int a) || a > 10000)
 		{
 			error.AppendLine("Ошибка,неверное число за очки");
 			entrypoint.Text = string.Empty;
 		}
-		if (string.IsNullOrEmpty(entrytime.Text) || !int.TryParse(entrytime.Text, out int b) || b > 10000)
+		if (!int.TryParse(entrytime.Text, out int b) || b > 10000)
 		{
 			error.AppendLine("Ошибка,неверное число времени");
 			entrytime.Text = string.Empty;
 		}
-		if (string.IsNullOrEmpty(entryspeed.Text) || !int.TryParse(entryspeed.Text, out int c) || c > 100000)
+		if ( !int.TryParse(entryspeed.Text, out int c) || c > 100000)
 		{
 			error.AppendLine("Ошибка,неверное число скорости");
 			entryspeed.Text = string.Empty;
@@ -157,6 +174,7 @@ public partial class CustomBuild : ContentPage
 
 		var page = new MainPage(_audioService);
 		await Navigation.PushModalAsync(page, animated: false);
+		allpagefortheme.IsEnabled = true;
 	}
 
 	private void UnfocusAll()
@@ -164,17 +182,7 @@ public partial class CustomBuild : ContentPage
 		entryspeed.Unfocus();
 		entrypoint.Unfocus();
 		entrytime.Unfocus();
-		wordsell.Unfocus();
-	}
-
-	private void DisableAllControls()
-	{
-		backcompl.IsEnabled = false;
-		entrypoint.IsEnabled = false;
-		entryspeed.IsEnabled = false;
-		entrytime.IsEnabled = false;
-		wordsell.IsEnabled = false;
-		customplay.IsEnabled = false;
+		entrycount.Unfocus();
 	}
 
 	private bool ValidateInputs()

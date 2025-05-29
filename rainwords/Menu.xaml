@@ -4,13 +4,17 @@
     <ContentPage.Resources>
         <ResourceDictionary>
             <Style TargetType="Button" x:Key="BaseButtonStyle">
-                <Setter Property="BorderWidth" Value="2"/>
+                <Setter Property="BorderWidth" Value="3"/>
+                <Setter Property="CornerRadius" Value="35"/>
+                <Setter Property="FontSize" Value="18"/>
+                <Setter Property="Padding" Value="0"/>
             </Style>
 
             <Style TargetType="Button" x:Key="whitethemebutton" BasedOn="{StaticResource BaseButtonStyle}">
-                <Setter Property="BackgroundColor" Value="Gray"/>
-                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="BackgroundColor" Value="White"/>
+                <Setter Property="TextColor" Value="Black"/>
                 <Setter Property="BorderColor" Value="Black"/>
+
             </Style>
 
             <Style TargetType="Label" x:Key="whitethemelabel">
@@ -18,19 +22,19 @@
             </Style>
 
             <Style TargetType="Button" x:Key="pinkthemebutton" BasedOn="{StaticResource BaseButtonStyle}">
-                <Setter Property="BackgroundColor" Value="White"/>
-                <Setter Property="TextColor" Value="Pink"/>
-                <Setter Property="BorderColor" Value="Gray"/>
+                <Setter Property="BackgroundColor" Value="#D5156B"/>
+                <Setter Property="TextColor" Value="Black"/>
+                <Setter Property="BorderColor" Value="Black"/>
             </Style>
 
             <Style TargetType="Label" x:Key="pinkthemelabel">
-                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="TextColor" Value="Black"/>
             </Style>
 
             <Style TargetType="Button" x:Key="blackthemebutton" BasedOn="{StaticResource BaseButtonStyle}">
-                <Setter Property="BackgroundColor" Value="White"/>
-                <Setter Property="TextColor" Value="Black"/>
-                <Setter Property="BorderColor" Value="Gray"/>
+                <Setter Property="BackgroundColor" Value="Black"/>
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="BorderColor" Value="White"/>
             </Style>
 
             <Style TargetType="Label" x:Key="blackthemelabel">
@@ -38,50 +42,85 @@
             </Style>
         </ResourceDictionary>
     </ContentPage.Resources>
-
-    <VerticalStackLayout x:Name="allpagefortheme">
-        <Image Source="logo.png" HorizontalOptions="EndAndExpand" VerticalOptions="Start"/>
-        <VerticalStackLayout x:Name="favoritmenu" Spacing="50">
-            <Grid x:Name="btnlist" IsVisible="True" RowSpacing="20">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-
-                <Button Text="Играть" Clicked="Play_Clicked" x:Name="play" Grid.Row="0"/>
-                <Button Text="Настройки" Clicked="Setting_Clicked" x:Name="setting" Grid.Row="1"/>
-                <Button Text="Выход" Clicked="Exit_Clicked" x:Name="exit" Grid.Row="2"/>
-
-                <Grid x:Name="confirmation" IsVisible="False" Grid.RowSpan="3" BackgroundColor="Black">
+    <Grid>
+        <Image Aspect="AspectFill" x:Name="bg"/>
+        <VerticalStackLayout x:Name="allpagefortheme">
+            <Label Text="" FontSize="36" IsVisible="False" FontFamily="Kokoro-Regular" Margin="4,0,0,-30" x:Name="back">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="back_menu"/>
+                </Label.GestureRecognizers>
+            </Label>
+            <Image Source="logotrue.png" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="71,84,71,0"/>
+            <VerticalStackLayout x:Name="favoritmenu" >
+                <Grid x:Name="btnlist" IsVisible="True" RowSpacing="21" Margin="0,173,0,0">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="50"/>
                     </Grid.RowDefinitions>
-                    <Label Text="Точно выйти? Ваша игра не будет сохранена" 
-                           HorizontalTextAlignment="Center" FontSize="15" 
-                           x:Name="confirmationexit" Grid.Row="0" TextColor="White"/>
-                    <Grid Grid.Row="1" ColumnSpacing="10" Padding="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Button x:Name="exitconf" Clicked="exitconf_Clicked" Text="Да" Grid.Column="0"/>
-                        <Button x:Name="non" Clicked="cansel" Text="Нет" Grid.Column="1"/>
-                    </Grid>
-                </Grid>
-            </Grid>
+                    <Button Text="ИГРАТЬ" Clicked="Play_Clicked" FontSize="18" x:Name="play" Grid.Row="0" WidthRequest="250"/>
+                    <Button Text="НАСТРОЙКИ" Clicked="Setting_Clicked" x:Name="setting" Grid.Row="1" WidthRequest="250"/>
+                    <Button Text="ВЫХОД" Clicked="Exit_Clicked" x:Name="exit" Grid.Row="2"  WidthRequest="250"/>
 
-            <VerticalStackLayout x:Name="complex1" IsVisible="False" Spacing="15">
-                <Button Text="Назад" Clicked="back_menu" HorizontalOptions="Start" x:Name="back"/>
-                <Label Text="Выберите сложность" x:Name="selectcomplex"/>
-                <Button Text="Продолжить" Clicked="buttoncomplex" IsVisible="False" 
-                        CommandParameter="playnext" x:Name="contin"/>
-                <Button Text="Легкая" Clicked="buttoncomplex" x:Name="easy" CommandParameter="playeasy"/>
-                <Button Text="Средняя" Clicked="buttoncomplex" x:Name="average" CommandParameter="playaverage"/>
-                <Button Text="Сложная" Clicked="buttoncomplex" x:Name="hard" CommandParameter="playhard"/>
-                <Button Text="Кастом" Clicked="buttoncomplex" x:Name="custom" CommandParameter="playcustom"/>
+                        <Frame CornerRadius="25" Padding="0"  HeightRequest="170" 
+                            WidthRequest="303" Grid.ColumnSpan="2" x:Name="confirmation" IsVisible="False">
+                            <Border StrokeThickness="3" x:Name="iamstroke">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="40"/>
+                                        <RowDefinition Height="27"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Text="Точно выйти?" 
+         HorizontalTextAlignment="Center" FontSize="15" 
+         x:Name="confirmationexitone" Grid.Row="0" Grid.ColumnSpan="2" VerticalTextAlignment="Center"/>
+                                    <Label Text="Ваша игра не будет сохранена" Grid.Row="1"
+           x:Name="confirmationexittwo" HorizontalTextAlignment="Center"  VerticalTextAlignment="Center" Grid.ColumnSpan="2" FontSize="15"/>
+                                <HorizontalStackLayout Grid.ColumnSpan="2" Grid.Column="0" Grid.Row="3" Spacing="100" Margin="20,0,0,0">
+                                    <Button x:Name="exitconf" Clicked="exitconf_Clicked" VerticalOptions="Center"
+         HeightRequest="46" WidthRequest="72" Text="Да" />
+                                    <Button x:Name="non" Clicked="cansel" Text="Нет" HeightRequest="46" WidthRequest="72"/>
+                                </HorizontalStackLayout>
+                                   
+                                </Grid>
+                            </Border>
+
+                        </Frame>
+                        
+                        
+                        <!--<Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Label Text="Точно выйти? Ваша игра не будет сохранена" 
+                        HorizontalTextAlignment="Center" FontSize="15" 
+                        x:Name="confirmationexit" Grid.Row="0" TextColor="White"/>
+                        <Grid Grid.Row="1" ColumnSpacing="10" Padding="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button x:Name="exitconf" Clicked="exitconf_Clicked" Text="Да" Grid.Column="0"/>
+                            <Button x:Name="non" Clicked="cansel" Text="Нет" Grid.Column="1"/>
+                        </Grid>-->
+                </Grid>
+
+                <VerticalStackLayout x:Name="complex1" IsVisible="False" Spacing="19" Margin="27,63,0,0"  >
+                    <!--<Button Text="Назад" Clicked="back_menu" HorizontalOptions="Start" x:Name="back"/>-->
+                    <Label Text="СЛОЖНОСТЬ" FontFamily="Kokoro-Regular" FontSize="24" x:Name="selectcomplex" Margin="10,0"/>
+                    <Button Text="Продолжить" Clicked="buttoncomplex" WidthRequest="249" HeightRequest="42" IsVisible="False" HorizontalOptions="StartAndExpand" 
+                     CommandParameter="playnext" x:Name="contin"/>
+                    <Button Text="Легкая" Clicked="buttoncomplex"  WidthRequest="249"  HeightRequest="45" HorizontalOptions="StartAndExpand"  x:Name="easy" CommandParameter="playeasy"/>
+                    <Button Text="Средняя" Clicked="buttoncomplex"  WidthRequest="249" HeightRequest="45"  HorizontalOptions="StartAndExpand"  x:Name="average" CommandParameter="playaverage"/>
+                    <Button Text="Сложная" Clicked="buttoncomplex"  WidthRequest="249" HeightRequest="45" HorizontalOptions="StartAndExpand"  x:Name="hard" CommandParameter="playhard"/>
+                    <Button Text="Кастом" Clicked="buttoncomplex"  WidthRequest="249" HeightRequest="45" HorizontalOptions="StartAndExpand"  x:Name="custom" CommandParameter="playcustom"/>
+                </VerticalStackLayout>
             </VerticalStackLayout>
         </VerticalStackLayout>
-    </VerticalStackLayout>
+    </Grid>
+   
 </ContentPage>

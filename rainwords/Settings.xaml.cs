@@ -1,5 +1,7 @@
-using IntelliJ.Lang.Annotations;
+
+using System.Data;
 using System.Diagnostics;
+using System.Numerics;
 using static System.Net.Mime.MediaTypeNames;
 using Application = Microsoft.Maui.Controls.Application;
 namespace rainwords;
@@ -9,8 +11,8 @@ public partial class Settings : ContentPage
 	private string _currentTheme;
 	private Dictionary<string, ImageButton> _themeButtons = new();
 	private Dictionary<string, Style> _cachedStyles = new();
-	private Label _sellang, _songsel, _selecttheme, _animsel, _rustrue, _entrue, _lben, _lbrus;
-	private Button _exit;
+	private Label  _songsel, _animsel, _rulb, _enlb, _titlelb, _exit;
+	private Button _languagebtbn, _selecthemebtn;
 	private Microsoft.Maui.Controls.Switch _songselSwitch, _animselSwitch;
 	public Settings(IAudioService audioService)
 	{
@@ -25,25 +27,33 @@ public partial class Settings : ContentPage
 		UpdateThemeUI();
 		stopwatch.Stop();
 		Console.WriteLine($"Settings loaded in {stopwatch.ElapsedMilliseconds} ms");
-		var language = Preferences.Default.Get("languagepickcheck", "");
-
 		// Обновляем только необходимые элементы
-		_rustrue.Text = language == "Русский" ? ">" : "";
-		_entrue.Text = language == "English" ? ">" : "";
+		
+		_exit.Text = "<";
 
+		App.GamePaused += PauseMenu;
+		App.GameResumed += ResumeMenu;
 	}
 
+	private void PauseMenu()
+	{
+		_audioService.StopMenuMusic();
+	}
+
+	private void ResumeMenu()
+	{
+		_audioService.StartMenuMusic();
+	}
 	private void CacheUIElements()
 	{
-		_sellang = sellang;
 		_songsel = songsel;
-		_selecttheme = selecttheme;
 		_animsel = animsel;
-		_rustrue = rustrue;
-		_entrue = entrue;
-		_lben = lben;
-		_lbrus = lbrus;
+		_enlb = enlb;
+		_rulb = rulb;
 		_exit = exit;
+		_titlelb = titlelb;
+		_languagebtbn = languagebtn;
+		_selecthemebtn = selecthemebtn;
 		_songselSwitch = songsel_switch;
 		_animselSwitch = animsel_switch;
 
@@ -87,23 +97,28 @@ public partial class Settings : ContentPage
 		var language = Preferences.Default.Get("languagepickcheck", "");
 		var swanim = Preferences.Default.Get("swanim", true);
 		var swsongs = Preferences.Default.Get("swsongs", true);
-
+		_enlb.FontFamily = language == "ENGLISH" ? "Kokoro-Regular" : "Kokoro";
+		_enlb.FontSize = language == "ENGLISH" ? 20 : 18;
+		_rulb.FontFamily = language == "РУССКИЙ" ? "Kokoro-Regular" : "Kokoro";
+		_rulb.FontSize = language == "РУССКИЙ" ? 20 : 18;
+		
+		
 		// Обновление текстов
-		if (language == "English")
+		if (language == "ENGLISH")
 		{
-			_sellang.Text = "Choose a language";
-			_exit.Text = "Save and exit";
-			_selecttheme.Text = "choose a theme";
-			_songsel.Text = swsongs ? "Turn off the sound" : "Turn on the sound";
-			_animsel.Text = swanim ? "Turn off animations and effects" : "Enable animations and effects";
+			_selecthemebtn.Text = "THEME";
+			_languagebtbn.Text = "LANGUAGE";
+			_songsel.Text = "SOUND";
+			_animsel.Text = "ANIMATIONS";
+			_titlelb.Text = "SETTINGS MENU";
 		}
 		else
 		{
-			_sellang.Text = "Выбрать язык";
-			_exit.Text = "Сохранить и выйти";
-			_selecttheme.Text = "Выбрать тему";
-			_songsel.Text = swsongs ? "Выключить звук" : "Включить звук";
-			_animsel.Text = swanim ? "Выключить анимации и эффекты" : "Включить анимации и эффекты";
+			_selecthemebtn.Text = "ТЕМЫ";
+			_languagebtbn.Text = "ЯЗЫК";
+			_songsel.Text = "ЗВУК";
+			_animsel.Text = "АНИМАЦИИ";
+			_titlelb.Text = "МЕНЮ НАСТРОЕК";
 		}
 
 		// Обновление переключателей
@@ -111,15 +126,16 @@ public partial class Settings : ContentPage
 		_songselSwitch.IsToggled = swsongs;
 	}
 
-	private async void LanguageSwitch(object sender, EventArgs e)
+
+
+	private void lang_vkl(object sender, EventArgs e)
 	{
-		var language = ((Button)sender).CommandParameter.ToString();
+		var language = ((Label)sender).Text.ToString();
 		Preferences.Default.Set("languagepickcheck", language);
-
-		// Обновляем только необходимые элементы
-		_rustrue.Text = language == "Русский" ? ">" : "";
-		_entrue.Text = language == "English" ? ">" : "";
-
+		_rulb.FontFamily = language == "РУССКИЙ" ? "Kokoro-Regular" : "Kokoro";
+		_rulb.FontSize = language == "РУССКИЙ" ? 20 : 18;
+		_enlb.FontFamily = language == "ENGLISH" ? "Kokoro-Regular" : "Kokoro";
+		_enlb.FontSize = language == "ENGLISH" ? 20 : 18;
 		UpdateLanguageUI();
 	}
 
@@ -134,19 +150,23 @@ public partial class Settings : ContentPage
 				_audioService.PlayMenuMusic();
 			if (e.Value && Application.Current.MainPage is MainPage)
 				_audioService.PlayGameMusic();
-
-			_songsel.Text = language == "Русский" ? "Выключить звук" : "Turn off the sound";
 			Preferences.Default.Set("swsongs", true);
 		}
 		else
 		{
 			if (!e.Value)
 				_audioService.StopAllMusic();
-
-			_songsel.Text = language == "Русский" ? "Включить звук" : "Turn on the sound";
 			Preferences.Default.Set("swsongs", false);
 		}
 
+	}
+
+	protected override void OnDisappearing()
+	{
+		base.OnDisappearing();
+		// Отписка от событий при уходе со страницы
+		App.GamePaused -= PauseMenu;
+		App.GameResumed -= ResumeMenu;
 	}
 	private void UpdateThemeUI()
 	{
@@ -156,7 +176,7 @@ public partial class Settings : ContentPage
 				ApplyTheme(Colors.White, "whiteLabel", "whiteButton");
 				break;
 			case "spinktheme.png":
-				ApplyTheme(Colors.Pink, "pinkLabel", "pinkButton");
+				ApplyTheme(Colors.HotPink, "pinkLabel", "pinkButton");
 				break;
 			case "sblacktheme.png":
 				ApplyTheme(Colors.Black, "blackLabel", "blackButton");
@@ -164,10 +184,22 @@ public partial class Settings : ContentPage
 		}
 	}
 
-	private async void Button_Clicked(object sender, EventArgs e)
+	private void selecthemebtn_Clicked(object sender, EventArgs e)
+	{
+		if (!theme.IsVisible) theme.IsVisible = true;
+		else theme.IsVisible = false;
+	}
+
+	private async void exit_menu(object sender, EventArgs e)
 	{
 		mainsettings.IsEnabled = false;
 		await Navigation.PushModalAsync(new Menu(_audioService), animated: false);
+	}
+
+	private void languagebtn_Clicked(object sender, EventArgs e)
+	{
+		if (!languageswitch.IsVisible) languageswitch.IsVisible = true;
+		else languageswitch.IsVisible = false;
 	}
 
 	private void ApplyTheme(Color backgroundColor, string labelStyleKey, string buttonStyleKey)
@@ -177,15 +209,14 @@ public partial class Settings : ContentPage
 		var labelStyle = _cachedStyles[labelStyleKey];
 		var buttonStyle = _cachedStyles[buttonStyleKey];
 
-		_sellang.Style = labelStyle;
 		_songsel.Style = labelStyle;
-		_selecttheme.Style = labelStyle;
+		_selecthemebtn.Style = buttonStyle;
 		_animsel.Style = labelStyle;
-		_exit.Style = buttonStyle;
-		_rustrue.Style = labelStyle;
-		_entrue.Style = labelStyle;
-		_lben.Style = labelStyle;
-		_lbrus.Style = labelStyle;
+		_exit.Style = labelStyle;
+		_titlelb.Style = labelStyle;
+		_languagebtbn.Style = buttonStyle;
+		_rulb.Style = labelStyle;
+		_enlb.Style = labelStyle;
 	}
 	string mas;
 	private void Image_Clicked(object sender, EventArgs e)
@@ -198,7 +229,7 @@ public partial class Settings : ContentPage
 		if (source is FileImageSource fileImageSource)
 		{
 			string imagePath = fileImageSource.File;
-			if (imagePath == mas)
+			if (imagePath == _currentTheme)
 			{
 				return;
 			}
@@ -220,6 +251,7 @@ public partial class Settings : ContentPage
 						imagebutton.Source = _currentTheme;
 						Preferences.Default.Set("selthemedate", imagebutton.Source.ToString().Remove(0, 6));
 						UpdateThemeUI();
+						return;
 					}
 
 
@@ -234,18 +266,9 @@ public partial class Settings : ContentPage
 	{
 		var language = Preferences.Default.Get("languagepickcheck", "");
 
-		if (_animselSwitch.IsToggled)
-		{
-			_animsel.Text = language == "Русский" ?
-				"Выключить анимации и эффекты" : "Turn off animations and effects";
-			Preferences.Default.Set("swanim", true);
-		}
-		else
-		{
-			_animsel.Text = language == "Русский" ?
-				"Включить анимации и эффекты" : "Enable animations and effects";
-			Preferences.Default.Set("swanim", false);
-		}
+		if (_animselSwitch.IsToggled) Preferences.Default.Set("swanim", true);
+		else Preferences.Default.Set("swanim", false);
+
 	}
 
 }
