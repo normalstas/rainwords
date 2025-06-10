@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.Numerics;
 using static System.Net.Mime.MediaTypeNames;
-using Application = Microsoft.Maui.Controls.Application;
+using Application = Microsoft.Maui.Controls.Application; //объявляем глобально, чтобы Maui не путал какой нужен
 
 
 namespace rainwords
@@ -13,44 +13,42 @@ namespace rainwords
 
 	public partial class MainPage : ContentPage
 	{
-		private readonly IAudioService _audioService;
-		private bool isManuallyPaused = true;
-		public MainPage(IAudioService audioService)
+		private readonly IAudioService _audioService; //переменная класса с музыкой для управления ею
+		public MainPage(IAudioService audioService) //создаем с параметром чтобы передавать музыку
 		{
-			var stopwatch = Stopwatch.StartNew();
+
 			InitializeComponent();
-			stopwatch.Stop();
-			Console.WriteLine($"Settings loaded in {stopwatch.ElapsedMilliseconds} ms");
-			_audioService = audioService;
-			_audioService.IsMusicEnabled = false;
-			CreatingLabels.Initialize(10);
-			InitializeAudio();
-			var language = Preferences.Default.Get("languagepickcheck", "");
-			DrawKeyboard(language);
-			timer_complex();
-			ApplyTheme();
-			StartTimers();
-			LanguageUI(language);
-			App.GamePaused += PauseTimers;
+			_audioService = audioService; //инициализуем переменную
+			_audioService.IsMusicEnabled = false; //выключаем музыку меню
+			CreatingLabels.Initialize(10); //сразу создаем 10 меток для слов
+			InitializeAudio(); //инициализируем потоки музыки
+			var language = Preferences.Default.Get("languagepickcheck", ""); //определяем какой язык нужен
+			DrawKeyboard(language); //функция для создания клавиатуры
+			timer_complex(); //функция для определения сложности
+			minusone.Text = "<-"; //не можем так писать в XAML пишем тут
+			ApplyTheme(); //функция для определения темы приложения
+			StartTimers(); //запускаем таймеры
+			LanguageUI(language); //переводим все надписи на выбранный язык
+			App.GamePaused += PauseTimers; //подписываемся на событие чтобы при сворачивании приложения останавливалась музыка и таймеры
 		}
 
 		private void PauseTimers()
 		{
-			pause_Clicked(pause, EventArgs.Empty);
+			pause_Clicked(pause, EventArgs.Empty); //открываем окно с паузой которая сама все сделает
 		}
 
-		
+
 
 		void LanguageUI(string language)
 		{
-			if (language == "РУССКИЙ")
+			if (language == "РУССКИЙ") //если в настройках русский выбран переводим на русский
 			{
 				paus.Text = "ПАУЗА";
 				continuebtn.Text = "ПРОДОЛЖИТЬ";
 				exit.Text = "ВЫЙТИ";
 				againbtn.Text = "ЗАНОВО";
 			}
-			else
+			else //если нет то на английский
 			{
 				paus.Text = "PAUSE";
 				continuebtn.Text = "CONTINUE";
@@ -59,225 +57,224 @@ namespace rainwords
 			}
 		}
 
-		void DrawKeyboard(string layout)
+		void DrawKeyboard(string language)
 		{
-			if (layout == "ENGLISH")
+			if (language == "ENGLISH") //определяем какой язык выбран и открываем нужную функцию 
 				DrawEnglishKeyboard();
-			else if (layout == "РУССКИЙ")
+			else if (language == "РУССКИЙ")
 				DrawRussianKeyboard();
 		}
 
-		void DrawEnglishKeyboard()
+		void DrawEnglishKeyboard() //создает английскую раскладку клавиатуры
 		{
-			string[] row0 = "qwertyuiop".Select(c => c.ToString()).ToArray();  // 10 букв
-			string[] row1 = "asdfghjkl".Select(c => c.ToString()).ToArray();   // 9 букв
-			string[] row2 = "zxcvbnm".Select(c => c.ToString()).ToArray();     // 7 букв
-			// Первая строка — QWERTYUIOP
-			for (int i = 0; i < row0.Length; i++)
-				AddKey(row0[i], 0, i * 2 + 2); // 1, 3, ..., 19
+			string[] row0 = "qwertyuiop".Select(c => c.ToString()).ToArray(); //1 строка в клавиатуре
+			string[] row1 = "asdfghjkl".Select(c => c.ToString()).ToArray();  //2 строка 
+			string[] row2 = "zxcvbnm".Select(c => c.ToString()).ToArray();    //3 строка
+																			  
+			for (int i = 0; i < row0.Length; i++) //цикл для создания первой строки
+				AddKey(row0[i], 0, i * 2 + 2); // созадем с расстоянием 1, 3, 6 ..
 
-			// Вторая строка — ASDFGHJKL
-			for (int i = 0; i < row1.Length; i++)
-				AddKey(row1[i], 1, i * 2 + 3); // 2, 4, ..., 18
+	
+			for (int i = 0; i < row1.Length; i++) //цикл для создания второй строки
+				AddKey(row1[i], 1, i * 2 + 3); //  созадем с расстоянием 5, 7, ...
 
-			// Третья строка — ZXCVBNM
-			for (int i = 0; i < row2.Length; i++)
-				AddKey(row2[i], 2, i * 2 + 5); // 4, 6, ..., 16
+
+			for (int i = 0; i < row2.Length; i++)//цикл для создания третьей строки
+				AddKey(row2[i], 2, i * 2 + 5); // созадем с расстоянием 5, 9, ...
 		}
 
-		void DrawRussianKeyboard()
+		void DrawRussianKeyboard() //создает русскую раскладку
 		{
-			string[] row0 = "йцукенгшщзх".Select(c => c.ToString()).ToArray();   // 11
-			string[] row1 = "фывапролджэ".Select(c => c.ToString()).ToArray();   // 11
-			string[] row2 = "ячсмитьбю".Select(c => c.ToString()).ToArray();     // 10
+			string[] row0 = "йцукенгшщзх".Select(c => c.ToString()).ToArray();   // 1 строка
+			string[] row1 = "фывапролджэ".Select(c => c.ToString()).ToArray();   // 2
+			string[] row2 = "ячсмитьбю".Select(c => c.ToString()).ToArray();     // 3
 
-			for (int i = 0; i < row0.Length; i++)
-				AddKey(row0[i], 0, i * 2 + 1); // Й–Х → 1, 3, ..., 21
+			for (int i = 0; i < row0.Length; i++) //цикл для создания 1 строки
+				AddKey(row0[i], 0, i * 2 + 1); //  созадем с расстоянием 1, 5, ...
 
-			for (int i = 0; i < row1.Length; i++)
-				AddKey(row1[i], 1, i * 2 + 1); // Ф–Э → 1, 3, ..., 21
+			for (int i = 0; i < row1.Length; i++) //цикл для создания 2 строки
+				AddKey(row1[i], 1, i * 2 + 1); //  созадем с расстоянием 1, 5, ...
 
 			for (int i = 0; i < row2.Length; i++)
-				AddKey(row2[i], 2, i * 2 + 3); // Я–Ю → 2, 4, ..., 20
+				AddKey(row2[i], 2, i * 2 + 3); // созадем с расстоянием 3, 7, ...
 		}
 
-		void AddKey(string letter, int row, int column)
+		void AddKey(string letter, int row, int column) //создает и кнопки и label и устанавливает в нужном расположении
 		{
-			var button = new Button
+			var button = new Button //создание кнопки
 			{
-				Text = letter,
-				TextColor = Colors.Transparent,
-				FontSize = 18,
-				CornerRadius = 5,
-				Style = GetTextColorByThemeButton(),
+				Text = letter, //берем из функции выше
+				TextColor = Colors.Transparent, //прозрачный текст
+				CornerRadius = 5, //закругление кнопки
+				Style = GetTextColorByThemeButton(), //стиль кнопки
 			};
 
-			var label = new Label
+			var label = new Label //создание label чтобы было отчетливо видно букву у кнопки
 			{
-				Text = letter,
-				Style = (Style)Resources["lbletter"],
-				BackgroundColor = Colors.Transparent,
-				//TextColor = GetTextColorByTheme(),
+				Text = letter, //берем из функции выше
+				Style = (Style)Resources["lbletter"], //стиль из XAML
+				BackgroundColor = Colors.Transparent,//прозрачный фон
 			};
 
-			button.Clicked += Button_Clicked;
-			Grid.SetRow(button, row);
-			Grid.SetColumn(button, column);
+			button.Clicked += KeyUp_Clicked; //создаем обработчик события для кнопки
+			Grid.SetRow(button, row); //устанавливаем строку 1, 2 или 3
+			Grid.SetColumn(button, column); //устанавливаем колонну из 24
 			Grid.SetColumnSpan(button, 2); // кнопка занимает 2 колонки
-			Grid.SetRow(label, row);
+			Grid.SetRow(label, row); //тоже самое делаем для лейблов
 			Grid.SetColumn(label, column);
 			Grid.SetColumnSpan(label, 2);
 
-			keyboard.Children.Add(button);
-			keyboard.Children.Add(label);
+			keyboard.Children.Add(button); //добавляем и кнопку и лейбл
+			keyboard.Children.Add(label); //
 		}
 
 
 
 
-		void StartTimers()
+		void StartTimers() //инициализация и запуск таймеров
 		{
-			_timer = Application.Current.Dispatcher.CreateTimer();
-			_timer.Interval = TimeSpan.FromSeconds(1);
-			_timer.Tick += Timer_Tick;
-			_timer3 = Application.Current.Dispatcher.CreateTimer();
-			_timer3.Interval = TimeSpan.FromMilliseconds(1); // ~60 FPS
-			_timer3.Tick += Timer3_Tick;
-			_timer.Start();
-			_timer3.Start();
+			_timer = Application.Current.Dispatcher.CreateTimer(); //создаем
+			_timer.Interval = TimeSpan.FromSeconds(1); //устанавливаем интервал в 1 секунду
+			_timer.Tick += Timer_Tick; //привязываем к событию
+			_timer3 = Application.Current.Dispatcher.CreateTimer(); //создаем 2
+			_timer3.Interval = TimeSpan.FromMilliseconds(1);//устанавливаем интервал в 1 миллисекунду
+			_timer3.Tick += Timer3_Tick; //привязываем к другому событию
+			_timer.Start(); //запуск 1
+			_timer3.Start(); //запуск 2
 		}
 
 
-		private async void InitializeAudio()
+		private async void InitializeAudio() //инициализация музыки
 		{
-			var audio = Preferences.Default.Get("swsongs", true);
-			if (!audio) return;
-			if (!_audioService.IsInitialized)
+			var audio = Preferences.Default.Get("swsongs", true); //проверяем включена ли музыка в настройках
+			if (!audio) return; //если нет не идем дальше
+			if (!_audioService.IsInitialized) //такая же проверка но уже для класса
 			{
-				await _audioService.InitializeAsync();
+				await _audioService.InitializeAsync(); //создаем поток
 			}
-			_audioService.PlayGameMusic();
+			_audioService.PlayGameMusic(); //начинаем воспроизводить
 		}
 
 		protected override void OnAppearing()
 		{
+			//проверяем что звук не отключен в настройках
 			var audio = Preferences.Default.Get("swsongs", true);
-			if (!audio) return;
-			base.OnAppearing();
-			_audioService.PlayGameMusic();
+			if (!audio) return; //если отключен не выполняем далее
+			base.OnAppearing();//вызов бвзовой реализации (страница включена)
+			_audioService.PlayGameMusic(); //включаем игровую музыку
 		}
 
 		protected override void OnDisappearing()
 		{
-			var audio = Preferences.Default.Get("swsongs", true);
-			if (!audio) return;
-			base.OnDisappearing();
-			App.GamePaused -= PauseTimers;
-			// Останавливаем музыку только если действительно уходим со страницы
+			var audio = Preferences.Default.Get("swsongs", true);//проверяем что звук не отключен в настройках
+			if (!audio) return; //если отключен не выполняем далее
+			base.OnDisappearing(); //вызывается, когда страница исчезает с экрана
+			App.GamePaused -= PauseTimers; //отписывемся от события в App
+										   // Останавливаем музыку только если действительно уходим со страницы
 			if (Navigation.NavigationStack.Count == 0 ||
 				Navigation.NavigationStack.Last() is not MainPage)
 			{
-				_audioService.StopAllMusic();
-				_timer.Stop();
-				_timer3.Stop();
+				_audioService.StopAllMusic(); //отключаем всю музыку
+				_timer.Stop(); //остановка главного таймера
+				_timer3.Stop(); //остановка игрового таймера
 
 			}
 		}
 
 
-		private void OnPauseMusic()
+		private void OnPauseMusic()//функция остановки музыки
 		{
-			var audio = Preferences.Default.Get("swsongs", true);
-			if (!audio) return;
-			_audioService.PauseGameMusic();
+			var audio = Preferences.Default.Get("swsongs", true); //проверка свитч музыки в настройках
+			if (!audio) return; //если выключен не идем двльше
+			_audioService.PauseGameMusic(); //останавливаем музыку
 		}
 
-		private void OnResumeMusic()
+		private void OnResumeMusic() //функция продолжения музыки
 		{
-			var audio = Preferences.Default.Get("swsongs", true);
-			if (!audio) return;
-			_audioService.ResumeGameMusic();
+			var audio = Preferences.Default.Get("swsongs", true);//проверка свитч музыки в настройках
+			if (!audio) return;//если выключен не идем двльше
+			_audioService.ResumeGameMusic(); //продолжаем музыку
 		}
-		int cellindex = 0;
-		Random random = new Random();
-		int point = 0;
+		int cellindex = 0; //служит счетчиком уже написанных букв
+		Random random = new Random(); //переменная рандома
+		int point = 0; //счет очков
 
-		List<Label> labels = new List<Label>();
+		List<Label> labels = new List<Label>(); //лист поля ввода
 
-		private void Button_Clicked(object sender, EventArgs e)
+		private void KeyUp_Clicked(object sender, EventArgs e)
 		{
-			if (absmenu.IsVisible) return;
-			var button = sender as Button;
-			if (button == null) return;
+			if (absmenu.IsVisible) return; //если окно паузы показывается не выполняем что дальше
+			var button = sender as Button; //создаем переменную нажатой кнопки
+			if (button == null) return; //если ошибочно было не идем двльше
 
-			var letter = button.Text;
-			if (cellindex < labels.Count)
-			{
-				labels[cellindex].Text = letter;
-				cellindex++;
+			var letter = button.Text; //создание переменной текста кнопки
+			if (cellindex < labels.Count) //если букв написанных больше чем счетчика(то есть у нас не переполненное поле ввода) 
+			{//то
+				labels[cellindex].Text = letter; //создаем в поле ввода нажатую букву
+				cellindex++; //прибавляем счетчик
 
 			}
 
 
 		}
 
-		TimeSpan _time;
-		IDispatcherTimer _timer;
-		IDispatcherTimer _timer3;
-		int complex = 0;
-		private int _remainingSeconds = 300;
+		TimeSpan _time; //будет служить отсчитыванием времени и его показу
+		IDispatcherTimer _timer; //тот самый основной таймер игры
+		IDispatcherTimer _timer3; //игровой таймер для проверки статуса слова
+		int complex = 0; //уровень сложности
+		private int _remainingSeconds = 300; //подсчет для создания слвоа
 
-		private void Timer_Tick(object sender, EventArgs e)
+		private void Timer_Tick(object sender, EventArgs e) 
 		{
 
-			_time = _time.Add(new TimeSpan(0, 0, -1));
+			_time = _time.Add(new TimeSpan(0, 0, -1)); //отнимаем по секунде
 
-			string timeString = string.Format("{0}:{1:D2}", (int)_time.TotalMinutes, _time.Seconds);
-			var language = Preferences.Default.Get("languagepickcheck", "");
-			tim.Text = timeString;
-			_remainingSeconds--;
-			if (_time.TotalSeconds == 0)
+			string timeString = string.Format("{0}:{1:D2}", (int)_time.TotalMinutes, _time.Seconds); //конвертируем в минуты и секунды только
+			var language = Preferences.Default.Get("languagepickcheck", ""); //выбор языка
+			tim.Text = timeString;//показываем время
+			_remainingSeconds--; //также отнимаем по секунде
+			if (_time.TotalSeconds == 0) //время вышло
 			{
-				foreach (var a in field.Children.ToList())
+				foreach (var a in field.Children.ToList()) //перебираем все лейблы слов на экране
 				{
-					if (a is Label label1)
+					if (a is Label label1) //используем как раз только их
 					{
-						Microsoft.Maui.Controls.ViewExtensions.CancelAnimations(label1);
+						Microsoft.Maui.Controls.ViewExtensions.CancelAnimations(label1); //останавливаем анимацию падения
 					}
 				}
 
-				_timer.Stop();
-				_timer3.Stop();
-				paus.Text = language == "РУССКИЙ" ? "ИГРА ОКОНЧЕНА!" : "THE GAME IS OVER!";
-				paus.FontSize = 16;
+				_timer.Stop(); //таймер останавливаем
+				_timer3.Stop(); //второй тоже
+				paus.Text = language == "РУССКИЙ" ? "ИГРА ОКОНЧЕНА!" : "THE GAME IS OVER!"; //информация о игре
+				paus.FontSize = 16; //размер информации
 
-				continuebtn.IsVisible = false;
-				againbtn.IsVisible = true;
-				absmenu.IsVisible = true;
+				continuebtn.IsVisible = false;//скрываем кнопку продолжить
+				againbtn.IsVisible = true;//показываем кнопку заново
+				absmenu.IsVisible = true;//показываем окно окончания игры
 			}
-			if (_remainingSeconds % complex == 0)
-			{
-				CreateWord();
+			if (!absmenu.IsVisible && _remainingSeconds % complex == 0) //если окно не показано и общее время делится на 5, 4 или 3
+			{															//в зависимости от сложности
+				CreateWord();//создаем слово
 			}
 		}
 
-		private void CreateWord()
+		private void CreateWord() //функция создания слов
 		{
-			var displayInfo = DeviceDisplay.MainDisplayInfo;
-			var screenWidth = displayInfo.Width / displayInfo.Density;
-			int randomword = random.Next(0, 70);
-			randomX = random.Next(Convert.ToInt32(-screenWidth) + 250, Convert.ToInt32(screenWidth) - 250);
-			var label = CreatingLabels.GetLabel(words[randomword], randomX);
-			label.TextColor = GetTextColorByTheme();
-			_audioService.PlayExplaSound();
-			field.Children.Add(label);
-			label.TranslateTo(randomX, 370, Data.speedcsm, Easing.Linear);
+			var displayInfo = DeviceDisplay.MainDisplayInfo; //вычисляем дисплей(у нас стоит стого вертикальный вид)
+			var screenWidth = displayInfo.Width / displayInfo.Density; //делим ширину дисплея на плотность
+			int randomword = random.Next(0, 70); //случайное слово из списка
+			randomX = random.Next(Convert.ToInt32(-screenWidth) + 250, Convert.ToInt32(screenWidth) - 250); //определяем ось х чтобы слово было полностью видно
+			var label = CreatingLabels.GetLabel(words[randomword], randomX);//отправляем в класс создания								
+			label.TextColor = GetTextColorByTheme(); //создаем тему для слова
+			_audioService.PlayExplaSound();//вклюючаем звук появления
+			field.Children.Add(label);//добавляем в игровое поле
+			label.TranslateTo(randomX, 370, Data.speedcsm, Easing.Linear); //создаем анимацию падения где Data.speedcsm - скорость слова
 
 		}
 
 		private Color GetTextColorByTheme()
 		{
-			return Preferences.Default.Get("selthemedate", "") switch
+			return Preferences.Default.Get("selthemedate", "") switch //в зависимости от темы создаем цвет для слова
 			{
 				"swhitetheme.png" => Colors.Black,
 				"spinktheme.png" => Colors.Black,
@@ -287,7 +284,7 @@ namespace rainwords
 
 		private Style GetTextColorByThemeButton()
 		{
-			return Preferences.Default.Get("selthemedate", "") switch
+			return Preferences.Default.Get("selthemedate", "") switch//в зависимости от темы создаем цвет для кнопок
 			{
 				"swhitetheme.png" => (Style)Resources["whitethemebutton"],
 				"spinktheme.png" => (Style)Resources["pinkthemebutton"],
@@ -298,73 +295,73 @@ namespace rainwords
 
 		private void Timer3_Tick(object sender, EventArgs e)
 		{
-			// Оптимизация: проверяем только видимые элементы
+			// оптимизация проверяяя только видимые элементы
 			var visibleLabels = field.Children.OfType<Label>().Where(l => l.IsVisible).ToList();
 
-			// Оптимизация: кешируем wordwin
-			string currentWordWin = "";
+			// оптимизация кешируем wordwin
+			string currentWordWin = ""; //складывает все написанные буквы в одно слово
 			switch (complextime)
 			{
 				case 0:
-					currentWordWin = string.Concat(cell1.Text, cell2.Text, cell3.Text, cell4.Text, cell5.Text);
+					currentWordWin = string.Concat(cell1.Text, cell2.Text, cell3.Text, cell4.Text, cell5.Text); //5 букв
 					break;
-				case 1:
+				case 1: //7 букв
 					currentWordWin = string.Concat(cell1.Text, cell2.Text, cell3.Text, cell4.Text, cell5.Text, cell6.Text, cell7.Text);
 					break;
-				case 2:
+				case 2://9 букв
 					currentWordWin = string.Concat(cell1.Text, cell2.Text, cell3.Text, cell4.Text, cell5.Text, cell6.Text, cell7.Text, cell8.Text, cell9.Text);
 					break;
 			}
 
-			// Оптимизация: проверяем только слова, которые могут совпадать по длине
+			// оптимизация проверяя только слова, которые могут совпадать по длине
 			foreach (var child in visibleLabels.Where(l => l.Text.Length == currentWordWin.Length).ToList())
 			{
-				if (child.Text == currentWordWin)
+				if (child.Text == currentWordWin)//если слово сходится с тем что мы написали
 				{
-					PlayCorrectWordEffect(child, true);
-					_audioService.PlayWinSound();
-					point += Data.pointcsm;
-					ClearInputCells();
-					break;
+					PlayCorrectWordEffect(child, true); //эффект зеленый цвет
+					_audioService.PlayWinSound();//звук победы над словом
+					point += Data.pointcsm;//прибавляем очки
+					ClearInputCells();//очищаем поле ввода
+					break;//заканчиваем
 				}
 			}
 
-			// Оптимизация: проверяем только элементы, которые достигли нижней границы
+			// оптимизация проверяем только элементы, которые достигли конца игрового поля
 			foreach (var label in visibleLabels.Where(l => l.TranslationY >= 370).ToList())
 			{
-				PlayCorrectWordEffect(label, false);
-				_audioService.PlayLossSound();
-				if (point >= Data.pointcsm) point -= Data.pointcsm;
+				PlayCorrectWordEffect(label, false); //эффект красный цвет
+				_audioService.PlayLossSound();//звук поражения над словом
+				if (point >= Data.pointcsm) point -= Data.pointcsm;//отнимаем очки если они не ровны 0
 			}
 
-			poin.Text = point.ToString();
+			poin.Text = point.ToString(); //отображаем их
 		}
 		private void ClearInputCells()
 		{
-			for (int i = 0; i < labels.Count; i++)
+			for (int i = 0; i < labels.Count; i++) //очищаем все буквы в поле для вывода
 			{
 				labels[i].Text = "";
 			}
-			cellindex = 0;
+			cellindex = 0;//обнуляем счетчик
 		}
 		private async void PlayCorrectWordEffect(Label label, bool checkplay)
 		{
-			var anim = Preferences.Default.Get("swanim", true);
-			if (checkplay)
+			var anim = Preferences.Default.Get("swanim", true);//проверяем что эффекты включены в настройках
+			if (checkplay) //победа или проигрыш над словом
 			{
-				if (anim)
+				if (anim) //если в настройках включены
 				{
-					label.TextColor = Colors.Lime;
-					Microsoft.Maui.Controls.ViewExtensions.CancelAnimations(label);
-					await label.ScaleTo(1.3, 200, Easing.Linear);
-					await Task.WhenAll(label.FadeTo(0, 300), label.TranslateTo(label.TranslationX, label.TranslationY - 50, 300));
+					label.TextColor = Colors.Lime; //делаем заленый цвет текста
+					Microsoft.Maui.Controls.ViewExtensions.CancelAnimations(label); //отменяем анимацию
+					await label.ScaleTo(1.3, 200, Easing.Linear); //расширяем слово
+					await Task.WhenAll(label.FadeTo(0, 300), label.TranslateTo(label.TranslationX, label.TranslationY - 50, 300));//чутка поднимаем слово
 				}
-				field.Children.Remove(label);
-				CreatingLabels.ReleaseLabel(label);
+				field.Children.Remove(label);//удаляем из игрового поля
+				CreatingLabels.ReleaseLabel(label);//освобждаем метку
 			}
 			else
 			{
-				if (anim)
+				if (anim)//делаем все тоже самое но с красным цветом
 				{
 					label.TextColor = Colors.Red;
 					Microsoft.Maui.Controls.ViewExtensions.CancelAnimations(label);
@@ -375,26 +372,26 @@ namespace rainwords
 				CreatingLabels.ReleaseLabel(label);
 			}
 		}
-		List<string> words = new List<string>();
-		int complextime = Data.compl;
-		double randomX;
+		List<string> words = new List<string>();//список падающий слов
+		int complextime = Data.compl; //сколько общее время будет
+		double randomX; //слово по оси х из случайной точки
 
-		void timer_complex()
+		void timer_complex() //определение сложности
 		{
-			labels = new List<Label> { cell1, cell2, cell3, cell4, cell5, cell6, cell7, cell8, cell9 };
-			var language = Preferences.Default.Get("languagepickcheck", "");
-			lbent.Children.Clear();
-			switch (complextime)
+			labels = new List<Label> { cell1, cell2, cell3, cell4, cell5, cell6, cell7, cell8, cell9 };//создаем поле ввода
+			var language = Preferences.Default.Get("languagepickcheck", ""); //определния языка
+			lbent.Children.Clear();//очищаем ранее созданное поле ввода
+			switch (complextime) //какую сложность выбрали
 			{
 
 				case 0:
-					_time = new TimeSpan(00, Data.timecsm, 00);
-					complex = 5;
+					_time = new TimeSpan(00, Data.timecsm, 00);//создаем время на 5 мин
+					complex = 5;//итервал между новыми словами
 
-					labels.Remove(cell9); labels.Remove(cell8); labels.Remove(cell7); labels.Remove(cell6);
-					cell9.IsVisible = false; cell8.IsVisible = false; cell7.IsVisible = false; cell6.IsVisible = false;
+					labels.Remove(cell9); labels.Remove(cell8); labels.Remove(cell7); labels.Remove(cell6);//удаляем поле ввода до 5 букв
+					cell9.IsVisible = false; cell8.IsVisible = false; cell7.IsVisible = false; cell6.IsVisible = false;//скрываем их
 
-					if (language == "РУССКИЙ")
+					if (language == "РУССКИЙ")//если русский выбран заполняем список русскими словами
 					{
 						words = new List<string>
 						{ "много","палец","нитка","башня","бимок","мышка","бодро","акулы","алмаз","ангел",
@@ -407,7 +404,7 @@ namespace rainwords
 					}
 					else
 					{
-						words = new List<string> //2 строка 2 слово 
+						words = new List<string> //если английский выбран заполняем список английскими словами
 						{ "apple","chair","dance","light","smile","ocean","cloud","peach","happy","grass",
 						  "berry","breez","mango","lemon","quilt","music","honey","river","dream","books",
 						  "cocoa","tulip","clean","plant","bread","sweet","grape","blush","beach","cream",
@@ -420,7 +417,7 @@ namespace rainwords
 					}
 
 					break;
-				case 1:
+				case 1://все точно также только под среднюю сложность
 					_time = new TimeSpan(00, Data.timecsm, 00);
 					complex = 4;
 					labels.Remove(cell9); labels.Remove(cell8);
@@ -440,7 +437,7 @@ namespace rainwords
 					else
 					{
 						words = new List<string>
-						{  //6 строка 9 слово
+						{  
 							"blanket","popcorn","lantern","musical","bicycle","morning","rainbow","cupcake","jellybe","cottage",
 							"teacher","cookies","apricot","picture","imagine","flowers","breezes","journey","zephyrs","snuggle",
 							"almondy","dolphin","pajamas","balloon","drawing","cupcake","scribes","harvest","balance","humming",
@@ -451,7 +448,7 @@ namespace rainwords
 						};
 					}
 					break;
-				case 2:
+				case 2://все точно также только под сложную сложность
 					_time = new TimeSpan(00, Data.timecsm, 00);
 					complex = 3;
 					if (language == "РУССКИЙ")
@@ -483,7 +480,7 @@ namespace rainwords
 				default:
 					break;
 			}
-			for (int i = 0; i < labels.Count; i++)
+			for (int i = 0; i < labels.Count; i++) //создание поля вывода 
 			{
 				var label = new Label
 				{
@@ -495,43 +492,43 @@ namespace rainwords
 				lbent.Children.Add(label);
 			}
 		}
-		private void Button_Clicked_1(object sender, EventArgs e)
+		private void ClearOne_Clicked(object sender, EventArgs e) //очистка последней буквы
 		{
-			if (absmenu.IsVisible) return;
+			if (absmenu.IsVisible) return; //не сможем если стоим на паузе
 			if (cellindex > 0)
 			{
 				cellindex--;
 				labels[cellindex].Text = "";
 			}
 		}
-		private void Button_Clicked_2(object sender, EventArgs e)
+		private void ClearAll_Clicked(object sender, EventArgs e) //очистка всего поля вывода
 		{
-			if (absmenu.IsVisible) return;
+			if (absmenu.IsVisible) return;//не сможем если стоим на паузе
 			cellindex = 0;
 			for (int i = 0; i < labels.Count; i++)
 			{
 				labels[i].Text = "";
 			}
 		}
-		private void pause_Clicked(object sender, EventArgs e)
+		private void pause_Clicked(object sender, EventArgs e) //пауаз
 		{
-			if (absmenu.IsVisible) return;
-			_timer.Stop();
+			if (absmenu.IsVisible) return; //не сможем если уже стоим на паузе
+			_timer.Stop();//останавливаем все
 			_timer3.Stop();
 			OnPauseMusic();
-			absmenu.IsVisible = true;
+			absmenu.IsVisible = true;//показываем окно паузы
 
 			foreach (var a in field.Children.ToList())
 			{
 				if (a is Label label1)
 				{
-					Microsoft.Maui.Controls.ViewExtensions.CancelAnimations(label1);
+					Microsoft.Maui.Controls.ViewExtensions.CancelAnimations(label1); //останавливаем аимацию всех слов
 				}
 			}
 		}
-		private void start_Clicked(object sender, EventArgs e)
+		private void start_Clicked(object sender, EventArgs e)//продолжить
 		{
-			OnResumeMusic();
+			OnResumeMusic();//продолжаем музыку
 			foreach (var a in field.Children.OfType<Label>())
 			{
 				if (a is Label label1)
@@ -539,30 +536,28 @@ namespace rainwords
 					double remainingDistance = 370 - label1.TranslationY;
 					uint newDuration = (uint)(10000 * (remainingDistance / (370 - (-100))));
 
-					label1.TranslateTo(label1.TranslationX, 370, Data.speedcsm, Easing.Linear);
+					label1.TranslateTo(label1.TranslationX, 370, newDuration, Easing.Linear);//вохвращаем анимацию и указываем сколько осталось лететь
 				}
 			}
-			if (_time.TotalSeconds != 0)
-			{
-				_timer.Start();
-				_timer3.Start();
-				absmenu.IsVisible = false;
-				clearone.IsEnabled = true;
-				clear.IsEnabled = true;
-			}
+
+			_timer.Start();//как с паузой но наоборот
+			_timer3.Start();
+			absmenu.IsVisible = false;
+			clearone.IsEnabled = true;
+			clear.IsEnabled = true;
 
 		}
 		private async void exmenu(object sender, EventArgs e)
-		{
+		{//выход из игры
 			await Navigation.PopModalAsync(animated: false);
 			_audioService.IsMusicEnabled = true;
-			_audioService.PlayMenuMusic();
+			_audioService.PlayMenuMusic();//включаем музыку меню
 		}
 
 		private void ApplyTheme()
 		{
 			var theme = Preferences.Default.Get("selthemedate", "");
-
+			//определение и настраивание темы
 			switch (theme)
 			{
 				case "swhitetheme.png":
@@ -579,43 +574,43 @@ namespace rainwords
 
 		private void ApplyWhiteTheme()
 		{
-			// Основные цвета
+			// основные цвета
 			main.BackgroundColor = Colors.White;
 			coutscore.BackgroundColor = Colors.White;
 			field.BackgroundColor = Colors.White;
-
-			// Текст
+			framefield.BorderColor = Colors.Black;
+			// текст
 			tim.TextColor = Colors.Black;
 			poin.TextColor = Colors.Black;
 			paus.TextColor = Colors.Black;
 
-			// Кнопки
+			// кнопки
 			ApplyButtonStyle("whitethemebutton");
 
-			// Метки слова
+			// метки слова
 			foreach (var label in labels)
 			{
 				label.TextColor = Colors.Black;
 			}
 
-			// Метки ввода
+			// метки ввода
 			foreach (var label in lbent.Children.OfType<Label>())
 			{
 				label.TextColor = Colors.Black;
 			}
 
-			// Кнопки клавиатуры
+			// кнопки клавиатуры
 			UpdateKeyboardButtons(Colors.White, Colors.Black);
 		}
 
-		private void ApplyPinkTheme()
+		private void ApplyPinkTheme()//тоже самое для розовой темы
 		{
 			main.BackgroundColor = Colors.HotPink;
 			word.BackgroundColor = Colors.HotPink;
 			coutscore.BackgroundColor = Colors.HotPink;
 			field.BackgroundColor = Colors.HotPink;
 			keyboard.BackgroundColor = Colors.HotPink;
-
+			framefield.BorderColor = Colors.Black;
 			tim.TextColor = Colors.Black;
 			poin.TextColor = Colors.Black;
 			paus.TextColor = Colors.Black;
@@ -635,13 +630,14 @@ namespace rainwords
 			UpdateKeyPinkButton(Colors.Black);
 		}
 
-		private void ApplyBlackTheme()
+		private void ApplyBlackTheme()//и для черной темы
 		{
 			main.BackgroundColor = Colors.Black;
 			word.BackgroundColor = Colors.Black;
 			coutscore.BackgroundColor = Colors.Black;
 			field.BackgroundColor = Colors.Black;
 			keyboard.BackgroundColor = Colors.Black;
+			framefield.BorderColor = Colors.White;
 			tim.TextColor = Colors.White;
 			poin.TextColor = Colors.White;
 			paus.TextColor = Colors.White;
@@ -661,7 +657,7 @@ namespace rainwords
 			UpdateKeyboardButtons(Colors.Black, Colors.White);
 		}
 
-		private void ApplyButtonStyle(string styleKey)
+		private void ApplyButtonStyle(string styleKey)//стили для кнопок
 		{
 			var style = (Style)Resources[styleKey];
 			switch (styleKey)
@@ -684,13 +680,13 @@ namespace rainwords
 				default:
 					break;
 			}
-			
+
 			clearone.Style = style;
 			clear.Style = style;
 
 		}
 
-		private void UpdateKeyboardButtons(Color bgColor, Color textColor)
+		private void UpdateKeyboardButtons(Color bgColor, Color textColor)//стили для кнопок на клавиатуре
 		{
 			foreach (var view in keyboard.Children)
 			{
@@ -705,7 +701,7 @@ namespace rainwords
 			}
 		}
 
-		private void UpdateKeyPinkButton(Color textColor)
+		private void UpdateKeyPinkButton(Color textColor)//для розовой
 		{
 			foreach (var view in keyboard.Children)
 			{
@@ -721,7 +717,7 @@ namespace rainwords
 			}
 		}
 
-		private void againbtn_Clicked(object sender, EventArgs e)
+		private void againbtn_Clicked(object sender, EventArgs e)//начать заново
 		{
 			absmenu.IsVisible = false;
 			againbtn.IsVisible = false;
@@ -733,6 +729,7 @@ namespace rainwords
 			LanguageUI(language);
 			timer_complex();
 			StartTimers();
+			//все возобновляем заново
 		}
 	}
 }

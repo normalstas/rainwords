@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace rainwords
 {
-	public static class Data
+	public static class Data //буфер между страницами
 	{
 		public static bool musplay = false;
 		public static int compl;

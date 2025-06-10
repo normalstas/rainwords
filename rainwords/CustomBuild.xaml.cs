@@ -9,21 +9,18 @@ public partial class CustomBuild : ContentPage
 {
 	private readonly IAudioService _audioService;
 	private bool _isInitialized;
-	public CustomBuild(IAudioService audioService)
+	public CustomBuild(IAudioService audioService)//все тоже самое сверху как и у остальных
 	{
 		_audioService = audioService;
-		var stopwatch = Stopwatch.StartNew();
 		InitializeComponent();
-		Task.Run(() =>
+		Task.Run(() =>//асинхронно запускам чтобы без задержек было
 		{
 			InitializeAudio();
-			Dispatcher.Dispatch(startgame);
+			Dispatcher.Dispatch(startgame);//выполнение в главном потоке
 		});
-		stopwatch.Stop();
-		Console.WriteLine($"Settings loaded in {stopwatch.ElapsedMilliseconds} ms");
 		backcompl.Text = "<";
-		App.GamePaused += PauseMenu;
-		App.GameResumed += ResumeMenu;
+		App.GamePaused += PauseMenu; //подписываемся на событие чтобы при сворачивании приложения останавливалась музыка
+		App.GameResumed += ResumeMenu;//продолжалась
 	}
 
 	private void PauseMenu()
@@ -39,7 +36,7 @@ public partial class CustomBuild : ContentPage
 	protected override void OnDisappearing()
 	{
 		base.OnDisappearing();
-		// Отписка от событий при уходе со страницы
+		// отписка от событий при уходе со страницы
 		App.GamePaused -= PauseMenu;
 		App.GameResumed -= ResumeMenu;
 	}
@@ -64,7 +61,7 @@ public partial class CustomBuild : ContentPage
 		allpagefortheme.IsEnabled = true;
 
 		var landuage = Preferences.Default.Get("languagepickcheck", "");
-		if (landuage == "ENGLISH")
+		if (landuage == "ENGLISH")//переводим
 		{
 			//backcompl.Text = "Back";
 			speedcustom.Text = "SPEED";
@@ -80,11 +77,11 @@ public partial class CustomBuild : ContentPage
 		if (string.IsNullOrEmpty(theme)) return;
 
 		var themePrefix = theme.Replace("stheme.png", "").Replace("s", "").Replace(".png", "");
-		ApplyTheme(themePrefix);
+		ApplyTheme(themePrefix);//определяем темы для элементов 
 	}
 
 	private void ApplyTheme(string themePrefix)
-	{
+	{//создаем темы для всех элементов
 		allpagefortheme.BackgroundColor = themePrefix switch
 		{
 			"whitetheme" => Colors.White,
@@ -105,25 +102,52 @@ public partial class CustomBuild : ContentPage
 					break;
 				case Entry entry:
 					entry.Style = (Style)Resources[$"{themePrefix}entry"];
-					entry.TextColor = themePrefix == "blacktheme" ? Colors.Black : Colors.White;
+					entry.TextColor = themePrefix == "blacktheme" ? Colors.White : Colors.Black;
 					break;
 				case Frame frame:
 					frame.BackgroundColor = themePrefix == "blacktheme" ? Colors.Black : Colors.White;
+					if (themePrefix == "pinktheme") frame.Background = new SolidColorBrush(Color.FromArgb("#D5156B"));
+					//frame.BackgroundColor = themePrefix == "pinktheme" ? Colors.HotPink : Colors.Black;
 					break;
 				case Border border:
 					border.Stroke = themePrefix == "blacktheme" ? Colors.White : Colors.Black;
 					break;
 			}
+			
 		}
-
+		//entry.Style = (Style)Resources[$"{themePrefix}entry"];
+		//entry.TextColor = themePrefix == "blacktheme" ? Colors.White : Colors.Black;
+		switch (themePrefix)
+		{
+			case "blacktheme":
+				entryspeed.TextColor = Colors.White;
+				entrypoint.TextColor = Colors.White;
+				entrytime.TextColor = Colors.White;
+				entrycount.TextColor = Colors.White;
+				break;
+			case "pinktheme":
+				entryspeed.TextColor = Colors.Black;
+				entrypoint.TextColor = Colors.Black;
+				entrytime.TextColor = Colors.Black;
+				entrycount.TextColor = Colors.Black;
+				break;
+			case "whitetheme":
+				entryspeed.TextColor = Colors.Black;
+				entrypoint.TextColor = Colors.Black;
+				entrytime.TextColor = Colors.Black;
+				entrycount.TextColor = Colors.Black;
+				break;
+			default:
+				break;
+		}
 		backcompl.TextColor = themePrefix == "blacktheme" ? Colors.White : Colors.Black;
 		titlelb.TextColor = themePrefix == "blacktheme" ? Colors.White : Colors.Black; 
 	}
 
 	private async void backcompl_Clicked(object sender, EventArgs e)
 	{
-		UnfocusAll();
-		await Navigation.PopModalAsync(animated: false);
+		UnfocusAll();//закрываем клаву
+		await Navigation.PopModalAsync(animated: false);//назад
 	}
 
 	private void entryspeed_TextChanged(object sender, TextChangedEventArgs e)
@@ -137,37 +161,17 @@ public partial class CustomBuild : ContentPage
 			"1-10000 мин" => !string.IsNullOrEmpty(entry.Text) && entry.Text.Length <= 10000,
 			_ => true
 		};
-		entry.TextColor = isValid ? (allpagefortheme.BackgroundColor == Colors.White ? Colors.Black : Colors.White) : Colors.Red;
+		entry.TextColor = isValid ? (allpagefortheme.BackgroundColor == Colors.White ? Colors.Black : Colors.White) : Colors.Red;//ошибка
 	}
 
 	private async void customplay_Clicked(object sender, EventArgs e)
 	{
+		//запускаем игру
 		if (!ValidateInputs()) return;
 
 		allpagefortheme.IsEnabled = false;
 		Data.musplay = true;
 		UnfocusAll();
-		StringBuilder error = new StringBuilder();
-		if (!int.TryParse(entrypoint.Text, out int a) || a > 10000)
-		{
-			error.AppendLine("Ошибка,неверное число за очки");
-			entrypoint.Text = string.Empty;
-		}
-		if (!int.TryParse(entrytime.Text, out int b) || b > 10000)
-		{
-			error.AppendLine("Ошибка,неверное число времени");
-			entrytime.Text = string.Empty;
-		}
-		if ( !int.TryParse(entryspeed.Text, out int c) || c > 100000)
-		{
-			error.AppendLine("Ошибка,неверное число скорости");
-			entryspeed.Text = string.Empty;
-		}
-		if (error.Length > 0)
-		{
-			await DisplayAlert("",error.ToString(),"ок");
-			return;
-		}
 		Data.timecsm = int.Parse(entrytime.Text);
 		Data.speedcsm = uint.Parse(entryspeed.Text);
 		Data.pointcsm = int.Parse(entrypoint.Text);
@@ -187,8 +191,8 @@ public partial class CustomBuild : ContentPage
 
 	private bool ValidateInputs()
 	{
-		return !string.IsNullOrEmpty(entrytime.Text) &&
-			   !string.IsNullOrEmpty(entryspeed.Text) &&
+		return !string.IsNullOrEmpty(entrytime.Text) ||
+			   !string.IsNullOrEmpty(entryspeed.Text) ||//если ничего не написали 
 			   !string.IsNullOrEmpty(entrypoint.Text);
 	}
 }

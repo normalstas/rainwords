@@ -35,7 +35,7 @@
             </Style>
             <Style TargetType="Entry" x:Key="pinkthemeentry">
                 <Setter Property="BackgroundColor" Value="Gray"/>
-                <Setter Property="PlaceholderColor" Value="White"/>
+                <Setter Property="PlaceholderColor" Value="Black"/>
             </Style>
             <Style TargetType="Button" x:Key="blackthemebutton" BasedOn="{StaticResource BaseButtonStyle}">
                 <Setter Property="BackgroundColor" Value="Black"/>
@@ -48,7 +48,7 @@
             </Style>
             <Style TargetType="Entry" x:Key="blackthemeentry">
                 <Setter Property="BackgroundColor" Value="Gray"/>
-                <Setter Property="PlaceholderColor" Value="White"/>
+                <Setter Property="PlaceholderColor" Value="Black"/>
             </Style>
         </ResourceDictionary>
     </ContentPage.Resources>
@@ -92,7 +92,7 @@
         <Frame CornerRadius="25" Padding="0"  HeightRequest="50" 
             WidthRequest="193" Grid.ColumnSpan="2" Margin="12,12,155,0">
             <Border StrokeThickness="3">
-                <Entry Keyboard="Numeric" x:Name="entrycount" Placeholder="5,7,9."  TextChanged="entryspeed_TextChanged"/>
+                <Entry Keyboard="Numeric" TextColor="Black" x:Name="entrycount" Placeholder="5,7,9."  TextChanged="entryspeed_TextChanged"/>
             </Border>
 
         </Frame>

@@ -79,9 +79,9 @@
 
         </StackLayout>
         <Frame 
-    BorderColor="Red" 
+    BorderColor="Black" 
     BackgroundColor="Transparent" 
-    Padding="10">
+    Padding="10" x:Name="framefield">
 
             <Grid x:Name="field" HeightRequest="400">
 
@@ -93,7 +93,7 @@
                        WidthRequest="200"
                        IsVisible="False" x:Name="absmenu"
                        Margin="0,200,0,0">
-                    <StackLayout Spacing="20" HeightRequest="200" WidthRequest="200" Padding="10">
+                    <StackLayout Spacing="10" HeightRequest="200" WidthRequest="200" Padding="10">
                         <Label Text="ПАУЗА" x:Name="paus" FontSize="30" HorizontalOptions="CenterAndExpand"/>
                         <Button x:Name="continuebtn" Clicked="start_Clicked" Text="ПРОДОЛЖИТЬ" HorizontalOptions="CenterAndExpand" IsVisible="True"/>
                         <Button x:Name="againbtn" Clicked="againbtn_Clicked" Text="ЗАНОВО" HorizontalOptions="CenterAndExpand" IsVisible="False"/>
@@ -157,14 +157,14 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Button Text = "" x:Name = "clear" Clicked = "Button_Clicked_2" Grid.Row = "2" Grid.Column = "0" Grid.ColumnSpan = "3" />
+                <Button Text = "" x:Name = "clear" Clicked = "ClearAll_Clicked" Grid.Row = "2" Grid.Column = "0" Grid.ColumnSpan = "3" />
 
-                <Button Text = "" x:Name = "clearone" Clicked = "Button_Clicked_1" Grid.Row = "2" Grid.Column = "21" Grid.ColumnSpan = "3" />
+                <Button Text = "" x:Name = "clearone" Clicked = "ClearOne_Clicked" Grid.Row = "2" Grid.Column = "21" Grid.ColumnSpan = "3" />
 
-                <Label Text = "X" Style="{StaticResource Key=lbletter}" Grid.Row = "2" Grid.Column = "0" Grid.ColumnSpan = "3" HorizontalTextAlignment = "Center" VerticalTextAlignment = "Center" />
+                <Label Text = "X" Style="{StaticResource Key=lbletter}"  Grid.Row = "2" Grid.Column = "0" Grid.ColumnSpan = "3" HorizontalTextAlignment = "Center" VerticalTextAlignment = "Center" />
 
 
-                <Label Text = "--"  Style="{StaticResource Key=lbletter}" Grid.Row = "2" Grid.Column = "21" Grid.ColumnSpan = "3" HorizontalTextAlignment = "Center" VerticalTextAlignment = "Center" />
+                <Label Text = "--" x:Name="minusone"  Style="{StaticResource Key=lbletter}" Grid.Row = "2" Grid.Column = "21" Grid.ColumnSpan = "3" HorizontalTextAlignment = "Center" VerticalTextAlignment = "Center" />
 
             </Grid>
 

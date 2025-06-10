@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace rainwords
 {
 	public interface IAudioService
-	{
+	{//интерфейс для управления музыкой
 		Task InitializeAsync();
 		void PlayMenuMusic();
 		void PlayGameMusic();
@@ -30,7 +30,7 @@ namespace rainwords
 
 	public class AudioServiceTwo : IAudioService, IDisposable
 	{
-		private readonly IAudioManager _audioManager;
+		private readonly IAudioManager _audioManager;//создаем плееров
 		private IAudioPlayer _menuMusicPlayer;
 		private IAudioPlayer _gameMusicPlayer;
 		private IAudioPlayer _winSoundPlayer;
@@ -53,7 +53,7 @@ namespace rainwords
 
 			try
 			{
-				// Асинхронно загружаем аудиофайлы
+				// асинхронно загружаем аудиофайлы
 				var menuStream = await FileSystem.OpenAppPackageFileAsync("bgmusicmenu.mp3");
 				_menuMusicPlayer = _audioManager.CreatePlayer(menuStream);
 
@@ -68,12 +68,12 @@ namespace rainwords
 
 				var explaword = await FileSystem.OpenAppPackageFileAsync("explasound.wav");
 				_explaSoundPlayer = _audioManager.CreatePlayer(explaword);
-				_menuMusicPlayer.Loop = true;
+				_menuMusicPlayer.Loop = true;//будут повтояться
 				_gameMusicPlayer.Loop = true;
 				_winSoundPlayer.Loop = false;
-				_lossSoundPlayer.Loop = false;
+				_lossSoundPlayer.Loop = false;//не будут
 				_explaSoundPlayer.Loop = false;
-				_winSoundPlayer.Volume = Math.Clamp(1.0, 0.0, 1.0);
+				_winSoundPlayer.Volume = Math.Clamp(1.0, 0.0, 1.0);//громкость
 				_lossSoundPlayer.Volume = Math.Clamp(1.0, 0.0, 1.0);
 				_explaSoundPlayer.Volume = Math.Clamp(1.0, 0.0, 1.0);
 				_gameMusicPlayer.Volume = Math.Clamp(0.7, 0.0, 1.0);
@@ -88,28 +88,28 @@ namespace rainwords
 			}
 		}
 
-		public void PlayWinSound()
+		public void PlayWinSound()//звук победы
 		{
-			if (!IsMusicEnabled || !_isInitialized) return;
+			if (!_isInitialized) return;
 
 			_winSoundPlayer?.Play();
 		}
 
-		public void PlayLossSound()
+		public void PlayLossSound()//звук поражения
 		{
-			if (!IsMusicEnabled || !_isInitialized) return;
+			if (!_isInitialized) return;
 
 			_lossSoundPlayer?.Play();
 		}
 
-		public void PlayExplaSound()
+		public void PlayExplaSound()//звук появления
 		{
-			if (!IsMusicEnabled || !_isInitialized) return;
+			if (!_isInitialized) return;
 
 			_explaSoundPlayer?.Play();
 		}
 
-		public void PlayMenuMusic()
+		public void PlayMenuMusic()//музыка меню
 		{
 			if (!IsMusicEnabled || !_isInitialized) return;
 
@@ -117,7 +117,7 @@ namespace rainwords
 			_menuMusicPlayer?.Play();
 		}
 
-		public void PlayGameMusic()
+		public void PlayGameMusic()//музыка игры
 		{
 			if (!IsMusicEnabled || !_isInitialized) return;
 
@@ -125,9 +125,9 @@ namespace rainwords
 			_gameMusicPlayer?.Play();
 		}
 
-		public void StopAllMusic()
+		public void StopAllMusic()//стоп всей музыки
 		{
-			if (!IsMusicEnabled || !_isInitialized) return;
+
 			_menuMusicPlayer?.Stop();
 			_gameMusicPlayer?.Stop();
 			_explaSoundPlayer?.Stop();
@@ -135,46 +135,38 @@ namespace rainwords
 			_winSoundPlayer?.Stop();
 		}
 
-		public void StopMenuMusic()
+		public void StopMenuMusic()//стоп меню музыки
 		{
 			if (!IsMusicEnabled || !_isInitialized) return;
 			_menuMusicPlayer?.Stop();
 		}
-		public void StartMenuMusic()
+		public void StartMenuMusic()//старт меню музыки
 		{
 			if (!IsMusicEnabled || !_isInitialized) return;
 			_menuMusicPlayer?.Play();
 		}
 
-		public void Dispose()
+		public void Dispose()//располагаем плееров
 		{
 			if (!IsMusicEnabled || !_isInitialized) return;
 			_menuMusicPlayer?.Dispose();
 			_gameMusicPlayer?.Dispose();
 		}
 
-		public void PauseGameMusic()
+		public void PauseGameMusic()//пауза игровой музыки
 		{
 			if (IsMusicEnabled || !_isInitialized) return;
 			_gameMusicPlayer?.Pause();
 			_menuMusicPlayer?.Stop();
 		}
 
-		public void ResumeGameMusic()
+		public void ResumeGameMusic()//продолжение игровой музыки
 		{
 			if (IsMusicEnabled || !_isInitialized) return;
 			_gameMusicPlayer?.Play();
 			_menuMusicPlayer?.Stop();
 		}
 
-		public void OnAppPaused()
-		{
-			_menuMusicPlayer?.Stop();
-			_gameMusicPlayer?.Stop();
-			_explaSoundPlayer?.Stop();
-			_lossSoundPlayer?.Stop();
-			_winSoundPlayer?.Stop();
-		}
 
 		
 	}

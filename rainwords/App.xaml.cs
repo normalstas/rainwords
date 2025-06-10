@@ -28,13 +28,13 @@ namespace rainwords
 
 		private void OnWindowDeactivated(object sender, EventArgs e)
 		{
-			// Пауза при сворачивании
+			// пауза при сворачивании
 			PauseGame();
 		}
 
 		private void OnWindowActivated(object sender, EventArgs e)
 		{
-			// Возобновление при разворачивании (если не на паузе)
+			// возобновление при разворачивании (если не на паузе)
 			if (!isManuallyPaused)
 			{
 				ResumeGame();

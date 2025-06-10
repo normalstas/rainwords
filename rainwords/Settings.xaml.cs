@@ -14,20 +14,16 @@ public partial class Settings : ContentPage
 	private Label  _songsel, _animsel, _rulb, _enlb, _titlelb, _exit;
 	private Button _languagebtbn, _selecthemebtn;
 	private Microsoft.Maui.Controls.Switch _songselSwitch, _animselSwitch;
-	public Settings(IAudioService audioService)
+	public Settings(IAudioService audioService) //что выше все для кэширования
 	{
-		var stopwatch = Stopwatch.StartNew();
+		
 		InitializeComponent();
 		CacheUIElements();
 		_audioService = audioService;
 		_currentTheme = Preferences.Default.Get("selthemedate", "");
 		LoadThemeButtons();
-		// Первоначальная настройка UI
 		UpdateLanguageUI();
 		UpdateThemeUI();
-		stopwatch.Stop();
-		Console.WriteLine($"Settings loaded in {stopwatch.ElapsedMilliseconds} ms");
-		// Обновляем только необходимые элементы
 		
 		_exit.Text = "<";
 
@@ -44,7 +40,7 @@ public partial class Settings : ContentPage
 	{
 		_audioService.StartMenuMusic();
 	}
-	private void CacheUIElements()
+	private void CacheUIElements()//кэш
 	{
 		_songsel = songsel;
 		_animsel = animsel;
@@ -57,7 +53,7 @@ public partial class Settings : ContentPage
 		_songselSwitch = songsel_switch;
 		_animselSwitch = animsel_switch;
 
-		// Кэширование стилей
+		// кэширование стилей
 		_cachedStyles["whiteLabel"] = (Style)Resources["whitethemelabel"];
 		_cachedStyles["pinkLabel"] = (Style)Resources["pinkthemelabel"];
 		_cachedStyles["blackLabel"] = (Style)Resources["blackthemelabel"];
@@ -66,7 +62,7 @@ public partial class Settings : ContentPage
 		_cachedStyles["blackButton"] = (Style)Resources["blackthemebutton"];
 	}
 
-	private void LoadThemeButtons()
+	private void LoadThemeButtons()//загружаем выбор тем
 	{
 		string[] datetheme = new string[] { "whitetheme.png", "pinktheme.png", "blacktheme.png" };
 
@@ -92,7 +88,7 @@ public partial class Settings : ContentPage
 		}
 	}
 
-	private void UpdateLanguageUI()
+	private void UpdateLanguageUI()//меняем на англ или русский
 	{
 		var language = Preferences.Default.Get("languagepickcheck", "");
 		var swanim = Preferences.Default.Get("swanim", true);
@@ -103,7 +99,7 @@ public partial class Settings : ContentPage
 		_rulb.FontSize = language == "РУССКИЙ" ? 20 : 18;
 		
 		
-		// Обновление текстов
+		// обновление текстов
 		if (language == "ENGLISH")
 		{
 			_selecthemebtn.Text = "THEME";
@@ -121,14 +117,14 @@ public partial class Settings : ContentPage
 			_titlelb.Text = "МЕНЮ НАСТРОЕК";
 		}
 
-		// Обновление переключателей
+		// обновление переключателей
 		_animselSwitch.IsToggled = swanim;
 		_songselSwitch.IsToggled = swsongs;
 	}
 
 
 
-	private void lang_vkl(object sender, EventArgs e)
+	private void lang_vkl(object sender, EventArgs e)//сам выбор языков
 	{
 		var language = ((Label)sender).Text.ToString();
 		Preferences.Default.Set("languagepickcheck", language);
@@ -139,7 +135,7 @@ public partial class Settings : ContentPage
 		UpdateLanguageUI();
 	}
 
-	private void song_Toggled(object sender, ToggledEventArgs e)
+	private void song_Toggled(object sender, ToggledEventArgs e)//музыка
 	{
 		_audioService.IsMusicEnabled = e.Value;
 		var language = Preferences.Default.Get("languagepickcheck", "");
@@ -150,6 +146,7 @@ public partial class Settings : ContentPage
 				_audioService.PlayMenuMusic();
 			if (e.Value && Application.Current.MainPage is MainPage)
 				_audioService.PlayGameMusic();
+			_audioService.StartMenuMusic();
 			Preferences.Default.Set("swsongs", true);
 		}
 		else
@@ -164,11 +161,11 @@ public partial class Settings : ContentPage
 	protected override void OnDisappearing()
 	{
 		base.OnDisappearing();
-		// Отписка от событий при уходе со страницы
+		// отписка от событий при уходе со страницы
 		App.GamePaused -= PauseMenu;
 		App.GameResumed -= ResumeMenu;
 	}
-	private void UpdateThemeUI()
+	private void UpdateThemeUI()//настраиваем темы для всех элементов
 	{
 		switch (_currentTheme)
 		{
@@ -184,26 +181,26 @@ public partial class Settings : ContentPage
 		}
 	}
 
-	private void selecthemebtn_Clicked(object sender, EventArgs e)
+	private void selecthemebtn_Clicked(object sender, EventArgs e)//переключение кнопки
 	{
 		if (!theme.IsVisible) theme.IsVisible = true;
 		else theme.IsVisible = false;
 	}
 
-	private async void exit_menu(object sender, EventArgs e)
+	private async void exit_menu(object sender, EventArgs e)//выход
 	{
 		mainsettings.IsEnabled = false;
 		await Navigation.PushModalAsync(new Menu(_audioService), animated: false);
 	}
 
-	private void languagebtn_Clicked(object sender, EventArgs e)
+	private void languagebtn_Clicked(object sender, EventArgs e)//переключение кнопки
 	{
 		if (!languageswitch.IsVisible) languageswitch.IsVisible = true;
 		else languageswitch.IsVisible = false;
 	}
 
 	private void ApplyTheme(Color backgroundColor, string labelStyleKey, string buttonStyleKey)
-	{
+	{//настройка выбранной темы
 		mainsettings.BackgroundColor = backgroundColor;
 
 		var labelStyle = _cachedStyles[labelStyleKey];
@@ -221,7 +218,7 @@ public partial class Settings : ContentPage
 	string mas;
 	private void Image_Clicked(object sender, EventArgs e)
 	{
-
+		//не даем второй раз нажать на тему
 		var imagebutton = sender as ImageButton;
 		if (imagebutton == null) return;
 		var source = imagebutton.Source;
@@ -252,6 +249,7 @@ public partial class Settings : ContentPage
 						Preferences.Default.Set("selthemedate", imagebutton.Source.ToString().Remove(0, 6));
 						UpdateThemeUI();
 						return;
+						//меняем тему с активной на неактивную, а на которую нажали с неактивной на активную
 					}
 
 

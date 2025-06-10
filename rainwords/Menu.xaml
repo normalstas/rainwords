@@ -50,7 +50,7 @@
                     <TapGestureRecognizer Tapped="back_menu"/>
                 </Label.GestureRecognizers>
             </Label>
-            <Image Source="logotrue.png" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="71,84,71,0"/>
+            <Image Source="rulogo.png" HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Margin="71,84,71,0"/>
             <VerticalStackLayout x:Name="favoritmenu" >
                 <Grid x:Name="btnlist" IsVisible="True" RowSpacing="21" Margin="0,173,0,0">
                     <Grid.RowDefinitions>
